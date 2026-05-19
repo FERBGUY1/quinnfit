@@ -1,0 +1,1843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Quinn.Fit">
+<meta name="theme-color" content="#0a0a0a">
+<title>Quinn.Fit — Personal Fitness OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#181818;--bg4:#202020;--bg5:#282828;
+  --accent:#e8ff47;--accent2:#ff6b35;--blue:#4da6ff;--green:#44ffaa;--red:#ff4455;--purple:#b57bff;
+  --text:#f0f0f0;--muted:#666;--muted2:#999;--border:#222;--border2:#333;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;overscroll-behavior:none;}
+.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:1px;}
+
+/* ── NAV ── */
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border2);display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;cursor:pointer;border:none;background:none;color:var(--muted);transition:color .2s;}
+.nav-item.active{color:var(--accent);}
+.nav-icon{font-size:20px;line-height:1;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:.3px;}
+
+/* ── PAGES ── */
+.page{display:none;min-height:100vh;padding-bottom:80px;}
+.page.active{display:block;}
+.page-header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 16px 12px;}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;}
+.card-sm{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;}
+.card-xs{background:var(--bg4);border-radius:8px;padding:10px;margin-bottom:6px;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 20px;border-radius:10px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;transition:all .15s;text-decoration:none;}
+.btn-accent{background:var(--accent);color:#000;}
+.btn-accent:active{transform:scale(.97);}
+.btn-ghost{background:var(--bg3);color:var(--text);border:1px solid var(--border2);}
+.btn-ghost:active{background:var(--bg4);}
+.btn-danger{background:rgba(255,68,85,.12);color:var(--red);border:1px solid rgba(255,68,85,.25);}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:8px;}
+.btn-xs{padding:5px 10px;font-size:11px;border-radius:6px;}
+.btn-full{width:100%;}
+
+/* ── INPUTS ── */
+input,select,textarea{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;width:100%;outline:none;transition:border .2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+input::placeholder{color:var(--muted);}
+select option{background:var(--bg3);}
+textarea{resize:vertical;min-height:80px;}
+label{font-size:12px;color:var(--muted2);display:block;margin-bottom:5px;margin-top:12px;font-weight:500;}
+
+/* ── TAGS & BADGES ── */
+.tag{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;}
+.tag-chest{background:rgba(255,100,100,.15);color:#ff6464;}
+.tag-back{background:rgba(77,166,255,.15);color:var(--blue);}
+.tag-shoulders{background:rgba(255,220,80,.15);color:#ffdc50;}
+.tag-biceps{background:rgba(181,123,255,.15);color:var(--purple);}
+.tag-triceps{background:rgba(255,107,53,.15);color:var(--accent2);}
+.tag-legs{background:rgba(68,255,170,.15);color:var(--green);}
+.tag-glutes{background:rgba(255,140,90,.15);color:#ff8c5a;}
+.tag-core{background:rgba(77,166,255,.15);color:var(--blue);}
+.tag-calves{background:rgba(129,236,236,.15);color:#81ecec;}
+.tag-forearms{background:rgba(250,177,160,.15);color:#fab1a0;}
+.tag-cardio{background:rgba(232,255,71,.15);color:var(--accent);}
+.tag-full{background:rgba(181,123,255,.15);color:var(--purple);}
+.tag-push{background:rgba(255,107,53,.15);color:var(--accent2);}
+.tag-pull{background:rgba(77,166,255,.15);color:var(--blue);}
+.tag-bjj{background:rgba(181,123,255,.15);color:var(--purple);}
+.tag-skate{background:rgba(255,220,80,.15);color:#ffdc50;}
+.tag-mobility{background:rgba(68,255,170,.15);color:var(--green);}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;display:none;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg2);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;border:1px solid var(--border2);border-bottom:none;}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:14px auto 0;}
+.modal-inner{padding:16px 20px 32px;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:24px;margin-bottom:4px;}
+
+/* ── EXERCISE MODAL (full screen) ── */
+.ex-modal{position:fixed;inset:0;background:var(--bg);z-index:600;display:none;flex-direction:column;overflow-y:auto;}
+.ex-modal.open{display:flex;}
+.ex-modal-header{position:sticky;top:0;background:rgba(10,10,10,.97);backdrop-filter:blur(16px);padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);z-index:10;}
+.ex-back-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;}
+.ex-modal-body{padding:16px;flex:1;}
+
+
+/* ── ALTERNATIVES LINKS ── */
+.alt-link{display:inline-flex;align-items:center;gap:4px;font-size:12px;background:var(--bg4);color:var(--blue);padding:5px 11px;border-radius:6px;cursor:pointer;border:1px solid rgba(77,166,255,.2);transition:all .15s;margin:2px;}
+.alt-link:hover{background:rgba(77,166,255,.1);}
+.alt-link::after{content:'→';font-size:10px;}
+
+/* ── SCHEDULE DAY CARDS ── */
+.day-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;}
+.day-card.today{border-color:var(--accent);}
+.day-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;}
+.day-name{font-family:'Bebas Neue',sans-serif;font-size:20px;}
+.day-label{font-size:11px;color:var(--muted2);margin-top:1px;}
+.day-badge{font-family:'Bebas Neue',sans-serif;font-size:13px;padding:4px 12px;border-radius:20px;}
+.day-exercises{padding:0 16px 14px;display:flex;flex-wrap:wrap;gap:6px;}
+.day-ex-pill{font-size:12px;background:var(--bg4);color:var(--muted2);padding:5px 12px;border-radius:20px;cursor:pointer;border:1px solid var(--border);transition:all .15s;}
+.day-ex-pill:hover{color:var(--accent);border-color:rgba(232,255,71,.3);}
+
+/* ── MACRO TRACKER ── */
+.macro-ring-wrap{display:flex;align-items:center;justify-content:center;padding:20px 0;}
+.cal-circle{position:relative;width:140px;height:140px;}
+.cal-circle svg{transform:rotate(-90deg);}
+.cal-circle-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.cal-num{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--accent);line-height:1;}
+.cal-label{font-size:10px;color:var(--muted2);margin-top:2px;}
+.macro-bars{display:grid;gap:10px;margin-top:16px;}
+.macro-bar-row{display:flex;align-items:center;gap:10px;}
+.macro-bar-label{width:60px;font-size:12px;color:var(--muted2);}
+.macro-bar-track{flex:1;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.macro-bar-fill{height:100%;border-radius:3px;transition:width .5s;}
+.macro-bar-val{width:60px;font-size:12px;font-weight:600;text-align:right;}
+.macro-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;}
+.macro-stat{background:var(--bg3);border-radius:10px;padding:12px;text-align:center;}
+.macro-stat-num{font-family:'Bebas Neue',sans-serif;font-size:22px;}
+.macro-stat-label{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;}
+
+/* ── PROFILE ── */
+.profile-hero{background:var(--bg2);border-bottom:1px solid var(--border);padding:24px 16px 20px;}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:28px;color:#000;margin-bottom:12px;}
+.profile-name{font-family:'Bebas Neue',sans-serif;font-size:28px;}
+.profile-sub{font-size:13px;color:var(--muted2);margin-top:2px;}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.stat-box{background:var(--bg3);border-radius:10px;padding:12px;text-align:center;}
+.stat-box-num{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);}
+.stat-box-label{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.3px;}
+
+/* ── WEEK STRIP ── */
+.week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:10px 0;}
+.week-dot{border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7px 2px;background:var(--bg3);border:1px solid var(--border);}
+.week-dot.done{background:rgba(232,255,71,.1);border-color:rgba(232,255,71,.3);}
+.week-dot.today{border-color:var(--accent);}
+.week-dot-day{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;}
+.week-dot-icon{font-size:14px;margin-top:2px;}
+
+/* ── FOOD LOG ── */
+.food-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.food-item:last-child{border-bottom:none;}
+.food-name{font-size:14px;font-weight:500;}
+.food-macros{font-size:11px;color:var(--muted2);margin-top:2px;}
+.food-cal{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);}
+
+/* ── MISC ── */
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);letter-spacing:1px;margin:16px 0 10px;}
+.divider{height:1px;background:var(--border);margin:14px 0;}
+.muted{color:var(--muted2);}
+.small{font-size:12px;}
+.flex{display:flex;align-items:center;}
+.flex-between{display:flex;align-items:center;justify-content:space-between;}
+.gap-8{gap:8px;}
+.gap-6{gap:6px;}
+.p-16{padding:16px;}
+.pb-0{padding-bottom:0;}
+.mt-4{margin-top:4px;}
+.mt-8{margin-top:8px;}
+.mb-8{margin-bottom:8px;}
+.mb-12{margin-bottom:12px;}
+.text-accent{color:var(--accent);}
+.text-red{color:var(--red);}
+.text-green{color:var(--green);}
+.cue-list{list-style:none;padding:0;}
+.cue-list li{font-size:13px;line-height:1.65;color:#bbb;padding:4px 0 4px 18px;position:relative;}
+.cue-list li::before{content:"→";position:absolute;left:0;color:var(--accent);font-size:11px;top:6px;}
+.diff-dots{display:flex;gap:3px;}
+.diff-dot{width:8px;height:8px;border-radius:2px;background:var(--bg4);}
+.diff-dot.on{background:var(--accent);}
+input[type=range]{padding:0;height:4px;accent-color:var(--accent);}
+.progress-ring-fill{transition:stroke-dashoffset .6s ease;}
+.ex-section{margin-bottom:24px;}
+.ex-section-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.ex-step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.ex-cue-row{display:flex;gap:12px;align-items:flex-start;background:var(--bg3);border-radius:10px;padding:12px 14px;}
+.ex-cue-num{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#000;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════ SCHEDULE PAGE ═══════════ -->
+<div class="page active" id="page-schedule">
+  <div class="page-header">
+    <div class="flex-between">
+      <div>
+        <div class="bebas" style="font-size:26px;color:var(--accent)">QUINN.FIT</div>
+        <div class="small muted" id="sched-date"></div>
+      </div>
+      <div class="flex gap-8">
+        <div class="stat-box" style="padding:8px 14px;">
+          <div class="stat-box-num" id="sched-streak" style="font-size:20px;">0</div>
+          <div class="stat-box-label">Streak</div>
+        </div>
+      </div>
+    </div>
+    <div class="week-strip" id="week-strip" style="margin-top:12px;"></div>
+  </div>
+  <div class="p-16">
+    <div class="section-title">This Week's Plan</div>
+    <div id="schedule-days"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ EXERCISES PAGE ═══════════ -->
+<div class="page" id="page-exercises">
+  <div class="page-header" style="padding-bottom:0;">
+    <div class="bebas" style="font-size:22px;color:var(--accent);margin-bottom:10px;">Exercise Library</div>
+    <div style="position:relative;margin-bottom:10px;">
+      <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;">🔍</span>
+      <input type="search" id="ex-search" placeholder="Search exercises, muscles, equipment..." style="padding-left:38px;" oninput="filterExercises()">
+    </div>
+    <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:10px;" id="equip-filters">
+      <button class="btn btn-xs active" data-equip="all" onclick="setEquip(this,'all')">All</button>
+      <button class="btn btn-xs btn-ghost" data-equip="barbell" onclick="setEquip(this,'barbell')">Barbell</button>
+      <button class="btn btn-xs btn-ghost" data-equip="dumbbell" onclick="setEquip(this,'dumbbell')">Dumbbell</button>
+      <button class="btn btn-xs btn-ghost" data-equip="cable" onclick="setEquip(this,'cable')">Cable</button>
+      <button class="btn btn-xs btn-ghost" data-equip="machine" onclick="setEquip(this,'machine')">Machine</button>
+      <button class="btn btn-xs btn-ghost" data-equip="bodyweight" onclick="setEquip(this,'bodyweight')">Bodyweight</button>
+      <button class="btn btn-xs btn-ghost" data-equip="kettlebell" onclick="setEquip(this,'kettlebell')">Kettlebell</button>
+      <button class="btn btn-xs btn-ghost" data-equip="band" onclick="setEquip(this,'band')">Band</button>
+    </div>
+    <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:10px;" id="muscle-filters">
+      <button class="btn btn-xs active" data-muscle="all" onclick="setMuscle(this,'all')">All</button>
+      <button class="btn btn-xs btn-ghost" data-muscle="chest" onclick="setMuscle(this,'chest')">Chest</button>
+      <button class="btn btn-xs btn-ghost" data-muscle="back" onclick="setMuscle(this,'back')">Back</button>
+      <button class="btn btn-xs btn-ghost" data-muscle="shoulders" onclick="setMuscle(this,'shoulders')">Shoulders</button>
+      <button class="btn btn-xs btn-ghost" data-muscle="biceps" onclick="setMuscle(this,'biceps')">Biceps</button>
+      <button class="btn btn-xs btn-ghost" data-muscle="triceps" onclick="setMuscle(this,'triceps')">Triceps</button>
+      <button class="btn btn-xs btn-ghost" data-muscle="legs" onclick="setMuscle(this,'legs')">Legs</button>
+      <button class="btn btn-xs btn-ghost" data-muscle="glutes" onclick="setMuscle(this,'glutes')">Glutes</button>
+      <button class="btn btn-xs btn-ghost" data-muscle="core" onclick="setMuscle(this,'core')">Core</button>
+      <button class="btn btn-xs btn-ghost" data-muscle="cardio" onclick="setMuscle(this,'cardio')">Cardio</button>
+      <button class="btn btn-xs btn-ghost" data-muscle="full" onclick="setMuscle(this,'full')">Full Body</button>
+      <button class="btn btn-xs btn-ghost" data-muscle="calves" onclick="setMuscle(this,'calves')">Calves</button>
+      <button class="btn btn-xs btn-ghost" data-muscle="forearms" onclick="setMuscle(this,'forearms')">Forearms</button>
+    </div>
+    <div class="small muted" id="ex-count-bar" style="padding-bottom:8px;"></div>
+  </div>
+  <div class="p-16" id="ex-list"></div>
+</div>
+
+<!-- ═══════════════════════════════════ MACROS PAGE ═══════════ -->
+<div class="page" id="page-macros">
+  <div class="page-header">
+    <div class="bebas" style="font-size:22px;color:var(--accent);">Nutrition & Macros</div>
+    <div class="small muted" id="macro-date"></div>
+  </div>
+  <div class="p-16">
+    <div class="macro-ring-wrap">
+      <div class="cal-circle">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="58" fill="none" stroke="#222" stroke-width="12"/>
+          <circle id="cal-ring" cx="70" cy="70" r="58" fill="none" stroke="#e8ff47" stroke-width="12"
+            stroke-dasharray="364" stroke-dashoffset="364" stroke-linecap="round" class="progress-ring-fill"/>
+        </svg>
+        <div class="cal-circle-text">
+          <div class="cal-num" id="cal-consumed">0</div>
+          <div class="cal-label">of <span id="cal-goal-display">0</span> cal</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="macro-bars">
+      <div class="macro-bar-row">
+        <div class="macro-bar-label small">Protein</div>
+        <div class="macro-bar-track"><div class="macro-bar-fill" id="bar-p" style="background:#4da6ff;width:0%"></div></div>
+        <div class="macro-bar-val small" id="val-p" style="color:#4da6ff;">0g</div>
+      </div>
+      <div class="macro-bar-row">
+        <div class="macro-bar-label small">Carbs</div>
+        <div class="macro-bar-track"><div class="macro-bar-fill" id="bar-c" style="background:#e8ff47;width:0%"></div></div>
+        <div class="macro-bar-val small" id="val-c" style="color:#e8ff47;">0g</div>
+      </div>
+      <div class="macro-bar-row">
+        <div class="macro-bar-label small">Fat</div>
+        <div class="macro-bar-track"><div class="macro-bar-fill" id="bar-f" style="background:#ff6b35;width:0%"></div></div>
+        <div class="macro-bar-val small" id="val-f" style="color:#ff6b35;">0g</div>
+      </div>
+    </div>
+
+    <div class="flex-between mt-8">
+      <div class="section-title" style="margin:12px 0 8px;">Today's Food</div>
+      <button class="btn btn-accent btn-sm" onclick="openModal('food-modal')">+ Add Food</button>
+    </div>
+    <div id="food-list"></div>
+
+    <div class="card" style="margin-top:12px;background:var(--bg3);">
+      <div class="bebas" style="font-size:16px;margin-bottom:8px;">Recommended Targets</div>
+      <div id="macro-targets-display"></div>
+      <div class="small muted mt-8">Based on your profile. Update in the Profile tab.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ PROFILE PAGE ═══════════ -->
+<div class="page" id="page-profile">
+  <div class="profile-hero">
+    <div class="profile-avatar" id="prof-avatar">QL</div>
+    <div class="profile-name" id="prof-name">Quinn Lamar</div>
+    <div class="profile-sub" id="prof-sub">Loading profile...</div>
+    <div class="stat-row" style="margin-top:14px;">
+      <div class="stat-box"><div class="stat-box-num" id="p-total">0</div><div class="stat-box-label">Sessions</div></div>
+      <div class="stat-box"><div class="stat-box-num" id="p-streak">0</div><div class="stat-box-label">Streak</div></div>
+      <div class="stat-box"><div class="stat-box-num" id="p-week">0</div><div class="stat-box-label">This Week</div></div>
+    </div>
+  </div>
+
+  <div class="p-16">
+    <div class="section-title">Personal Info</div>
+    <div class="card">
+      <label>Name</label>
+      <input type="text" id="prof-name-input" placeholder="Your name" value="Quinn Lamar">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><label>Age</label><input type="number" id="prof-age" placeholder="e.g. 22"></div>
+        <div><label>Sex</label>
+          <select id="prof-sex">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><label>Height (ft)</label><input type="number" id="prof-height-ft" placeholder="5" step="1" min="3" max="8"></div>
+        <div><label>Height (in)</label><input type="number" id="prof-height-in" placeholder="10" step="1" min="0" max="11"></div>
+      </div>
+      <label>Weight (lbs)</label>
+      <input type="number" id="prof-weight" placeholder="e.g. 175">
+      <label>Goal</label>
+      <select id="prof-goal">
+        <option value="bulk">Build Muscle (Bulk)</option>
+        <option value="cut">Lose Fat (Cut)</option>
+        <option value="recomp">Recomp (Muscle + Fat loss)</option>
+        <option value="maintain">Maintain</option>
+        <option value="athlete">Athletic Performance</option>
+      </select>
+      <label>Activity Level</label>
+      <select id="prof-activity">
+        <option value="1.2">Sedentary (desk job, no exercise)</option>
+        <option value="1.375">Lightly Active (1–3x/week)</option>
+        <option value="1.55" selected>Moderately Active (3–5x/week)</option>
+        <option value="1.725">Very Active (6–7x/week + sports)</option>
+        <option value="1.9">Extremely Active (athlete)</option>
+      </select>
+      <button class="btn btn-accent btn-full mt-8" onclick="saveProfile()" style="margin-top:14px;">Save & Recalculate Macros</button>
+    </div>
+
+    <div class="section-title">Body Weight Log</div>
+    <div class="card">
+      <div class="flex-between mb-8">
+        <div class="small muted">Track your weight over time</div>
+        <button class="btn btn-accent btn-sm" onclick="openModal('weight-modal')">+ Log</button>
+      </div>
+      <div id="weight-log-list"></div>
+    </div>
+
+    <div class="section-title">Log Session</div>
+    <div class="card">
+      <div class="small muted mb-8">Record any workout, BJJ, or skate session</div>
+      <button class="btn btn-accent btn-full" onclick="openModal('session-modal')">+ Log Session</button>
+      <div id="session-log-list" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="section-title">Journal</div>
+    <div class="card">
+      <textarea id="journal-input" placeholder="Recovery notes, energy levels, PRs, how you felt..."></textarea>
+      <button class="btn btn-accent btn-full" style="margin-top:10px;" onclick="saveJournal()">Save Entry</button>
+      <div id="journal-list" style="margin-top:12px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ EXERCISE DETAIL MODAL ═══════════ -->
+<div class="ex-modal" id="ex-modal">
+  <div class="ex-modal-header">
+    <button class="ex-back-btn" onclick="closeExModal()">←</button>
+    <div style="flex:1;min-width:0;">
+      <div class="bebas" style="font-size:20px;" id="ex-modal-title">Exercise</div>
+      <div class="small muted" id="ex-modal-sub"></div>
+    </div>
+    <div id="ex-modal-tag"></div>
+  </div>
+  <div class="ex-modal-body" id="ex-modal-body"></div>
+</div>
+
+<!-- ═══════════════════════════════════ FOOD MODAL ═══════════ -->
+<div class="modal-overlay" id="food-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-inner">
+      <div class="modal-title">Add Food</div>
+      <label>Food / Meal Name</label>
+      <input type="text" id="food-name" placeholder="e.g. Grilled chicken, oats...">
+      <label>Calories</label>
+      <input type="number" id="food-cals" placeholder="300">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div><label>Protein (g)</label><input type="number" id="food-p" placeholder="30"></div>
+        <div><label>Carbs (g)</label><input type="number" id="food-c" placeholder="40"></div>
+        <div><label>Fat (g)</label><input type="number" id="food-f" placeholder="8"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button class="btn btn-ghost" style="flex:1;" onclick="closeModal('food-modal')">Cancel</button>
+        <button class="btn btn-accent" style="flex:2;" onclick="addFood()">Add Food</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ WEIGHT MODAL ═══════════ -->
+<div class="modal-overlay" id="weight-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-inner">
+      <div class="modal-title">Log Weight</div>
+      <label>Weight (lbs)</label>
+      <input type="number" id="weight-input" placeholder="e.g. 178">
+      <label>Note (optional)</label>
+      <input type="text" id="weight-note" placeholder="Morning, post-workout...">
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button class="btn btn-ghost" style="flex:1;" onclick="closeModal('weight-modal')">Cancel</button>
+        <button class="btn btn-accent" style="flex:2;" onclick="saveWeight()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ SESSION MODAL ═══════════ -->
+<div class="modal-overlay" id="session-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-inner">
+      <div class="modal-title">Log Session</div>
+      <label>Session Type</label>
+      <select id="sess-type">
+        <option>Push — Chest / Shoulders / Triceps</option>
+        <option>Pull — Back / Biceps</option>
+        <option>Legs + Posterior Chain</option>
+        <option>Upper Body Hybrid</option>
+        <option>Cardio + Core</option>
+        <option>Cardio + Mobility</option>
+        <option>BJJ Session</option>
+        <option>Skate Session</option>
+        <option>Other</option>
+      </select>
+      <label>Duration (minutes)</label>
+      <input type="number" id="sess-dur" placeholder="60">
+      <label>Session Rating</label>
+      <div style="display:flex;gap:6px;margin-top:6px;" id="rating-row">
+        <button class="btn btn-ghost btn-sm" onclick="setRating(1)">1 ★</button>
+        <button class="btn btn-ghost btn-sm" onclick="setRating(2)">2 ★</button>
+        <button class="btn btn-ghost btn-sm" onclick="setRating(3)">3 ★</button>
+        <button class="btn btn-ghost btn-sm" onclick="setRating(4)">4 ★</button>
+        <button class="btn btn-ghost btn-sm" onclick="setRating(5)">5 ★</button>
+      </div>
+      <label>Notes / PRs</label>
+      <textarea id="sess-notes" placeholder="What went well? Any PRs? How did you feel?"></textarea>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button class="btn btn-ghost" style="flex:1;" onclick="closeModal('session-modal')">Cancel</button>
+        <button class="btn btn-accent" style="flex:2;" onclick="saveSession()">Save Session</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ BOTTOM NAV ═══════════ -->
+<nav class="nav">
+  <button class="nav-item active" onclick="showPage('schedule',this)">
+    <div class="nav-icon">📅</div><div class="nav-label">Schedule</div>
+  </button>
+  <button class="nav-item" onclick="showPage('exercises',this)">
+    <div class="nav-icon">💪</div><div class="nav-label">Exercises</div>
+  </button>
+  <button class="nav-item" onclick="showPage('macros',this)">
+    <div class="nav-icon">🥗</div><div class="nav-label">Macros</div>
+  </button>
+  <button class="nav-item" onclick="showPage('profile',this)">
+    <div class="nav-icon">👤</div><div class="nav-label">Profile</div>
+  </button>
+</nav>
+<script>
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+const DEFAULT_STATE = {
+  profile:{name:'Quinn Lamar',age:22,sex:'male',heightFt:5,heightIn:10,weight:175,goal:'bulk',activity:1.55},
+  logs:[],foods:{},weights:[],journals:[],rating:0
+};
+let S = JSON.parse(JSON.stringify(DEFAULT_STATE));
+
+function load(){try{const s=localStorage.getItem('quinnfit_v3');if(s)S={...S,...JSON.parse(s)};}catch(e){}}
+function save(){try{localStorage.setItem('quinnfit_v3',JSON.stringify(S));}catch(e){}}
+load();
+
+// ═══════════════════════════════════════════════════════════
+// EXERCISE DATABASE
+// ═══════════════════════════════════════════════════════════
+const EX = [
+  {id:'bench',name:'Barbell Bench Press',muscle:'chest',equip:'barbell',diff:2,
+   secondary:['triceps','shoulders'],
+   desc:'The foundational horizontal press. Builds chest mass and pressing strength.',
+   cues:['Retract and depress shoulder blades into the bench','Feet flat, slight arch in lower back','Lower bar to nipple line — not neck or stomach','Drive elbows at 45–75° — not flared wide','Exhale on the press, inhale on the descent'],
+   alts:['Incline Barbell Press','Dumbbell Bench Press','Close-Grip Bench Press'],
+
+   steps:['Set up with bar at mid-chest level in rack','Grip slightly wider than shoulder-width','Unrack, lower bar under control to chest','Press bar up and slightly back to starting position']},
+  {id:'incline-bench',name:'Incline Barbell Press',muscle:'chest',equip:'barbell',diff:2,
+   secondary:['shoulders','triceps'],
+   desc:'Upper chest builder. 30–45° incline shifts emphasis to clavicular head of pec.',
+   cues:['Set bench 30–45° — higher shifts load to shoulders','Bar path slightly forward arc','Elbows at 75° max — not flared','Control the eccentric (lowering) phase'],
+   alts:['Barbell Bench Press','Incline Dumbbell Press','Low-to-High Cable Fly'],
+
+   steps:['Set bench to 30–45° incline','Position bar over upper chest','Lower bar with control to upper chest','Press up and slightly back']},
+  {id:'db-bench',name:'Dumbbell Bench Press',muscle:'chest',equip:'dumbbell',diff:1,
+   secondary:['triceps','shoulders'],
+   desc:'Greater ROM than barbell. Works each side independently — fixes strength imbalances.',
+   cues:['Start dumbbells at chest level, palms forward','Arc slightly inward at top for chest contraction','Full stretch at bottom — controlled','Knee-kick to get heavy dumbbells into position'],
+   alts:['Barbell Bench Press','Cable Chest Press','Push-Up'],
+
+   steps:['Lie on flat bench, dumbbells at chest','Press up, arc slightly inward at top','Lower with control for full stretch','Repeat with controlled tempo']},
+  {id:'cable-fly',name:'Cable Chest Fly',muscle:'chest',equip:'cable',diff:1,
+   secondary:[],
+   desc:'Constant tension isolation. Target upper, mid, or lower chest by adjusting cable height.',
+   cues:['Step forward so cables pull back at an angle','Keep a fixed slight elbow bend','Squeeze chest hard at the center','Three variations: high-to-low, horizontal, low-to-high'],
+   alts:['Dumbbell Flye','Pec Deck Machine','Cable Crossover'],
+
+   steps:['Set cables at desired height','Stand centered, grip handles','Step forward into staggered stance','Arc arms together, squeeze chest, return']},
+  {id:'pushup',name:'Push-Up',muscle:'chest',equip:'bodyweight',diff:1,
+   secondary:['triceps','shoulders','core'],
+   desc:'Foundation of all pressing. Works chest, triceps, shoulders, and core together.',
+   cues:['Hands slightly wider than shoulders','Elbows at 45° — not flared or fully tucked','Body rigid from head to heels — no hip sag','Chest grazes floor at the bottom'],
+   alts:['Diamond Push-Up','Decline Push-Up','Dumbbell Bench Press'],
+
+   steps:['Start in high plank, hands shoulder-width','Lower chest to floor with control','Press up to full extension','Keep body rigid throughout']},
+  {id:'dips-chest',name:'Chest Dips',muscle:'chest',equip:'bodyweight',diff:2,
+   secondary:['triceps','shoulders'],
+   desc:'Lean forward to shift emphasis to lower chest. Excellent mass builder.',
+   cues:['Lean torso forward 30–45° for chest focus','Wide hand spacing favors chest','Lower until elbows reach 90°','Control the descent — protect shoulders'],
+   alts:['Decline Dumbbell Press','Close-Grip Bench Press','Cable Crossover'],
+
+   steps:['Grip parallel bars, lean torso forward','Lower until elbows at 90°','Drive back up through chest','Add weight with dip belt to progress']},
+  {id:'deadlift',name:'Barbell Deadlift',muscle:'back',equip:'barbell',diff:3,
+   secondary:['glutes','legs','core','forearms'],
+   desc:'The king of all lifts. Builds total posterior chain strength and mass.',
+   cues:['Bar over mid-foot at setup','Hinge to bar — don\'t squat down to it','Lats engaged: protect your armpits','Drive the floor away — don\'t pull the bar up','Lock hips and knees simultaneously at the top'],
+   alts:['Romanian Deadlift','Trap Bar Deadlift','Rack Pull'],
+
+   steps:['Stand with bar over mid-foot','Hip hinge to grip bar just outside legs','Brace core, engage lats','Drive floor away to lockout']},
+  {id:'rdl',name:'Romanian Deadlift',muscle:'back',equip:'barbell',diff:2,
+   secondary:['glutes','hamstrings'],
+   desc:'Hip hinge targeting hamstrings and glutes. The best hamstring hypertrophy movement.',
+   cues:['Soft knee bend — not a squat','Push hips back, not down','Bar drags close to legs throughout','Feel hamstrings stretch at bottom','Drive hips forward to stand'],
+   alts:['Single-Leg RDL','Dumbbell RDL','Good Morning','Cable Pull-Through'],
+
+   steps:['Stand with bar at hips','Hinge hips back, bar slides down legs','Feel deep hamstring stretch at bottom','Drive hips forward to return']},
+  {id:'pullup',name:'Pull-Up',muscle:'back',equip:'bodyweight',diff:2,
+   secondary:['biceps','core'],
+   desc:'Overhand grip pull. One of the best lat and upper back builders.',
+   cues:['Dead hang start — full arm extension','Depress and retract scapulae first','Drive elbows to hips — not just bend arms','Chin clearly above bar to complete the rep'],
+   alts:['Lat Pulldown','Chin-Up','Assisted Pull-Up'],
+
+   steps:['Hang from bar with overhand grip','Depress shoulder blades','Pull until chin clears bar','Lower with control to full hang']},
+  {id:'lat-pulldown',name:'Lat Pulldown',muscle:'back',equip:'machine',diff:1,
+   secondary:['biceps'],
+   desc:'Cable machine pull mimicking pull-ups. Great for building lat width.',
+   cues:['Lean back 15°','Drive elbows down and back to lats','Bar to top of chest — not stomach','Stretch arms fully at top'],
+   alts:['Pull-Up','Cable Straight-Arm Pulldown','Chin-Up'],
+
+   steps:['Sit at machine, grip wide bar','Lean back slightly, pull bar to chest','Squeeze lats at bottom','Control bar back to full extension']},
+  {id:'cable-row-single',name:'Single-Arm Cable Row',muscle:'back',equip:'cable',diff:1,
+   secondary:['biceps','core'],
+   desc:'Allows rotation for greater lat stretch and contraction. Core anti-rotation demand.',
+   cues:['Allow slight torso rotation toward cable at full stretch','Rotate back and drive elbow past torso at top','Core braced to control rotation','Feet staggered for balance'],
+   alts:['Single-Arm Dumbbell Row','Seated Cable Row','Chest-Supported Row'],
+
+   steps:['Stand perpendicular to cable','Reach across and grab handle','Pull elbow back past torso, rotate','Return with controlled stretch']},
+  {id:'seated-cable-row',name:'Seated Cable Row',muscle:'back',equip:'cable',diff:1,
+   secondary:['biceps','rear delts'],
+   desc:'Horizontal pull targeting mid-back. Use V-handle for mid-back, wide bar for lats.',
+   cues:['Start with slight forward lean — stretch the lats','Pull handle to lower sternum','Squeeze shoulder blades together at top','Full stretch at the front — don\'t cut ROM'],
+   alts:['Barbell Row','Dumbbell Row','Chest-Supported Row'],
+
+   steps:['Sit at cable row machine','Grip handle, slight forward lean','Pull handle to sternum, squeeze back','Return with full stretch']},
+  {id:'face-pull',name:'Face Pull',muscle:'back',equip:'cable',diff:1,
+   secondary:['rear delts','rotator cuff'],
+   desc:'Rear delt and external rotator health. Critical for shoulder longevity and posture.',
+   cues:['Cable at or above face height','Pull rope to forehead — not chin','Elbows stay high and wide','Externally rotate at end — double bicep pose finish','Light weight — this is health work'],
+   alts:['Band Pull-Apart','Rear Delt Fly','Prone Y-T-W'],
+
+   steps:['Set rope attachment at face height','Step back, arms extended','Pull rope to forehead, elbows wide','Externally rotate — hold and return']},
+  {id:'ohp',name:'Barbell Overhead Press',muscle:'shoulders',equip:'barbell',diff:3,
+   secondary:['triceps','core','traps'],
+   desc:'The foundational overhead strength movement. Builds pressing power and shoulder mass.',
+   cues:['Bar on front of shoulders in rack position','Push head through at lockout','Brace abs hard — don\'t hyperextend lower back','Full lockout overhead — every rep'],
+   alts:['Dumbbell Shoulder Press','Arnold Press','Machine Shoulder Press'],
+
+   steps:['Clean bar to front rack or unrack','Brace core, press bar overhead','Push head through at lockout','Lower under control to rack position']},
+  {id:'db-shoulder-press',name:'Dumbbell Shoulder Press',muscle:'shoulders',equip:'dumbbell',diff:1,
+   secondary:['triceps'],
+   desc:'Seated or standing overhead press. Greater ROM than barbell. Fixes imbalances.',
+   cues:['Dumbbells at ear level to start','Press directly overhead','Full lockout at top','Control descent — don\'t drop elbows below 90°'],
+   alts:['Barbell OHP','Arnold Press','Machine Shoulder Press'],
+
+   steps:['Sit with dumbbells at shoulder height','Press directly overhead to lockout','Control the descent back to ears','Repeat with full ROM each rep']},
+  {id:'arnold-press',name:'Arnold Press',muscle:'shoulders',equip:'dumbbell',diff:2,
+   secondary:['triceps','upper chest'],
+   desc:'Rotation through the press hits all three delt heads. Greater time under tension.',
+   cues:['Start with palms facing face at chin level','Rotate as you press — palms face forward at top','Slow and controlled — don\'t rush the rotation'],
+   alts:['Dumbbell Shoulder Press','Barbell OHP'],
+
+   steps:['Hold dumbbells, palms facing you at chin','Rotate and press — palms face away at top','Full lockout overhead','Reverse rotation on the way down']},
+  {id:'lateral-raise',name:'Lateral Raise',muscle:'shoulders',equip:'dumbbell',diff:1,
+   secondary:[],
+   desc:'Medial delt isolation. The most important exercise for shoulder width and aesthetics.',
+   cues:['Slight forward lean (10°) loads side delt better','Lead with elbows — not hands','Pinky slightly higher than thumb at top','Stop at shoulder height — not higher','Keep torso still — no swinging'],
+   alts:['Cable Lateral Raise','Machine Lateral Raise','Band Lateral Raise'],
+
+   steps:['Stand holding dumbbells at sides','Raise arms out to shoulder height','Lead with elbows, pinky up slightly','Lower with control — don\'t drop']},
+  {id:'rear-delt-fly',name:'Rear Delt Fly',muscle:'shoulders',equip:'dumbbell',diff:1,
+   secondary:['back'],
+   desc:'Posterior delt isolation. Critical for posture, shoulder health, and balance.',
+   cues:['Hinge forward 45–90°','Arc arms wide with slight elbow bend','Lead with elbows — not hands','Go light — rear delts are small muscles'],
+   alts:['Face Pull','Reverse Pec Deck','Band Pull-Apart'],
+
+   steps:['Hinge forward at hips, dumbbells hanging','Arc arms wide keeping slight elbow bend','Squeeze rear delts at top','Lower with control']},
+  {id:'barbell-curl',name:'Barbell Curl',muscle:'biceps',equip:'barbell',diff:1,
+   secondary:['forearms'],
+   desc:'Classic mass builder. Heavy loading possible. Builds peak and size.',
+   cues:['Upper arms pinned to sides — don\'t swing','Full ROM: full hang to full curl','Supinate wrists at top for peak contraction','2–3 second lowering for hypertrophy'],
+   alts:['EZ Bar Curl','Dumbbell Curl','Cable Curl'],
+
+   steps:['Stand holding bar with underhand grip','Elbows at sides, curl bar to chest','Squeeze biceps hard at top','Lower with 2–3 second count']},
+  {id:'hammer-curl',name:'Hammer Curl',muscle:'biceps',equip:'dumbbell',diff:1,
+   secondary:['brachialis','forearms'],
+   desc:'Neutral grip targets brachialis and adds arm thickness. Pushes bicep peak up.',
+   cues:['Palms facing each other throughout','Don\'t rotate the wrist','Cross-body variation for extra ROM','Great for arm thickness — not just peak'],
+   alts:['Rope Cable Curl','Cross-Body Hammer Curl','Barbell Curl'],
+
+   steps:['Hold dumbbells, palms facing each other','Curl up keeping neutral grip throughout','Squeeze at top','Lower with control']},
+  {id:'incline-db-curl',name:'Incline Dumbbell Curl',muscle:'biceps',equip:'dumbbell',diff:1,
+   secondary:[],
+   desc:'Arms hang behind torso on incline bench. Unique stretch for the long head of bicep.',
+   cues:['Arms hang straight behind torso — this is the stretch','Don\'t let elbows drift forward','Curl strictly — no momentum','Arms pass behind the body at bottom'],
+   alts:['Spider Curl','Preacher Curl','Cable Curl'],
+
+   steps:['Set bench to 45–60° incline','Lie back, arms hanging behind body','Curl with no momentum, strict form','Feel the long head stretch at the bottom']},
+  {id:'tricep-pushdown',name:'Tricep Rope Pushdown',muscle:'triceps',equip:'cable',diff:1,
+   secondary:[],
+   desc:'Constant tension tricep isolation. Spread the rope at the bottom for extra contraction.',
+   cues:['Elbows pinned to sides','Push down and flare rope apart at bottom','Don\'t let elbows rise during reps','Slight forward lean is fine'],
+   alts:['Bar Pushdown','Overhead Cable Extension','Tricep Dips'],
+
+   steps:['Attach rope to high cable','Grip rope, elbows at sides','Push down and spread rope apart at bottom','Control return, don\'t let elbows rise']},
+  {id:'overhead-tricep-ext',name:'Overhead Tricep Extension',muscle:'triceps',equip:'dumbbell',diff:1,
+   secondary:[],
+   desc:'Maximum long head stretch. Critical for full tricep development and size.',
+   cues:['Upper arms stay by ears — vertical','Lower until you feel deep stretch','Don\'t let elbows flare','Can do single or bilateral'],
+   alts:['Cable Overhead Extension','Skull Crusher','EZ Bar Overhead Extension'],
+
+   steps:['Hold dumbbell overhead with both hands','Elbows by ears, lower weight behind head','Feel deep stretch in long head','Press back to lockout']},
+  {id:'skull-crusher',name:'Skull Crusher',muscle:'triceps',equip:'barbell',diff:2,
+   secondary:[],
+   desc:'Long head tricep stretch with heavy loading. Pairs perfectly with close-grip bench.',
+   cues:['Upper arms stay perpendicular to floor','Lower to forehead or behind head','EZ bar is more wrist-friendly','Control the bar at all times'],
+   alts:['Overhead DB Extension','Close-Grip Bench Press','Cable Overhead Extension'],
+
+   steps:['Lie on bench, bar above chest','Lower bar to forehead or behind head','Upper arms stay vertical','Press back up to lockout']},
+  {id:'zercher-squat',name:'Zercher Squat',muscle:'legs',equip:'barbell',diff:3,
+   secondary:['core','back','biceps'],
+   desc:'Bar held in elbow crease. Extreme core demand. Upright torso. Perfect for BJJ and athletic performance.',
+   cues:['Bar rests in elbow crease — use padding','Stand upright throughout','Brace core extremely hard','Elbows drive up and in','Builds full-body tension like grappling'],
+   alts:['Goblet Squat','Front Squat','Box Squat'],
+
+   steps:['Set bar at elbow height in rack','Cradle bar in elbow crease','Step back, stand tall','Squat deep, elbows drive up','Stand driving hips through']},
+  {id:'box-squat',name:'Box Squat',muscle:'legs',equip:'barbell',diff:2,
+   secondary:['glutes','hamstrings'],
+   desc:'Squat to a box and pause. Teaches depth, eliminates stretch reflex. Great for returning lifters.',
+   cues:['Sit back to box — not down','Pause 1 second on box controlled','Wide stance typically used','Drive through heels to stand'],
+   alts:['Back Squat','Goblet Squat','Zercher Squat'],
+
+   steps:['Position box at knee height or below','Bar on upper back, sit back to box','Pause 1 second — no bouncing','Drive through heels to stand']},
+  {id:'goblet-squat',name:'Goblet Squat',muscle:'legs',equip:'kettlebell',diff:1,
+   secondary:['core','upper back'],
+   desc:'Best beginner squat. Naturally creates upright torso. Great warm-up drill.',
+   cues:['Hold weight at sternum','Elbows drive down between knees at bottom','Sit deep — great hip mobility drill','Perfect for drilling mechanics'],
+   alts:['Front Squat','Box Squat','Leg Press'],
+
+   steps:['Hold kettlebell at chest','Feet shoulder-width, toes out','Squat deep — elbows drive between knees','Stand driving through heels']},
+  {id:'rdl-db',name:'Romanian Deadlift (DB)',muscle:'legs',equip:'dumbbell',diff:2,
+   secondary:['glutes','lower back'],
+   desc:'Same pattern as barbell RDL with dumbbells. Better ROM, easier to set up.',
+   cues:['Push hips back — not down','Dumbbells slide down legs','Feel deep hamstring stretch','Drive hips forward to stand'],
+   alts:['Barbell RDL','Single-Leg RDL','Good Morning'],
+
+   steps:['Hold dumbbells at thighs','Hinge hips back, dumbbells slide down','Deep hamstring stretch at bottom','Drive hips forward to stand']},
+  {id:'bulgarian-split-squat',name:'Bulgarian Split Squat',muscle:'legs',equip:'dumbbell',diff:2,
+   secondary:['glutes','core','balance'],
+   desc:'Rear foot elevated. Single-leg loading for quad, glute, and hip stability.',
+   cues:['Front foot far enough forward','Lower straight down — not forward','Back foot on bench laces down','Knee of front leg tracks toes'],
+   alts:['Reverse Lunge','Step-Up','Pistol Squat'],
+
+   steps:['Place rear foot on bench','Hold dumbbells at sides','Lower straight down — rear knee to floor','Drive through front heel to stand']},
+  {id:'leg-press',name:'Leg Press',muscle:'legs',equip:'machine',diff:1,
+   secondary:['glutes'],
+   desc:'High-volume quad and glute work. Safe for heavy loading. Foot position changes emphasis.',
+   cues:['High + wide foot = glutes/hams','Low + narrow = quads','Never lock knees at top','Don\'t let lower back round off pad','Full ROM — bring knees close to chest'],
+   alts:['Squat','Hack Squat Machine','Goblet Squat'],
+
+   steps:['Sit in leg press, feet on platform','Lower weight until knees at 90°','Press through chosen foot position','Stop just short of knee lockout']},
+  {id:'nordic-curl',name:'Nordic Curl',muscle:'legs',equip:'bodyweight',diff:3,
+   secondary:['glutes','core'],
+   desc:'Eccentric hamstring king. Reduces hamstring injury risk by ~50%. Essential for athletes.',
+   cues:['Lower as slowly as possible','Use hands to push off floor at bottom','Build up — start with partial ROM','This is injury prevention, not ego'],
+   alts:['Lying Leg Curl','Swiss Ball Leg Curl','Single-Leg RDL'],
+
+   steps:['Kneel, ankles secured by partner or anchor','Lower body toward floor using hamstrings only','As slow as possible — resist gravity','Push off floor at bottom, return to start']},
+  {id:'tibialis-raise',name:'Tibialis Raise',muscle:'legs',equip:'bodyweight',diff:1,
+   secondary:['ankles'],
+   desc:'Strengthens shin and ankle. Prevents shin splints. Critical for skaters.',
+   cues:['Heels on a step, back against wall','Raise toes as high as possible','Slow and controlled','Can add plate on feet for resistance'],
+   alts:['Seated Tibialis Raise','Band Dorsiflexion'],
+
+   steps:['Stand heels on step edge, lean on wall','Raise toes as high as possible','Squeeze tibialis at top','Lower with control, repeat']},
+  {id:'hip-thrust',name:'Hip Thrust',muscle:'glutes',equip:'barbell',diff:2,
+   secondary:['hamstrings','core'],
+   desc:'Best direct glute builder. Shoulders on bench, bar across hips, drive up.',
+   cues:['Bench at mid-upper back','Chin tucked — don\'t hyperextend neck','Drive through heels','Full hip extension at top — squeeze hard','Pause 1 second at top'],
+   alts:['Glute Bridge','Cable Pull-Through','Romanian Deadlift'],
+
+   steps:['Rest upper back on bench, bar across hips','Plant feet flat, knees bent','Drive hips up until fully extended','Squeeze glutes hard, lower with control']},
+  {id:'plank',name:'Plank',muscle:'core',equip:'bodyweight',diff:1,
+   secondary:['shoulders','glutes'],
+   desc:'Anti-extension core stability. Full body tension. Foundation of all core work.',
+   cues:['Forearms on floor, elbows under shoulders','Body straight — no hip sag','Brace like someone is about to punch your stomach','Squeeze glutes and quads','Breathe — don\'t hold breath'],
+   alts:['Dead Bug','Hollow Body Hold','Ab Wheel Rollout'],
+
+   steps:['Forearms on floor, elbows under shoulders','Body rigid from head to heels','Brace core — breathe steadily','Hold prescribed time']},
+  {id:'dead-bug',name:'Dead Bug',muscle:'core',equip:'bodyweight',diff:1,
+   secondary:['hip flexors'],
+   desc:'Anti-extension with opposing limb movement. Trains deep stabilizers used in BJJ guard.',
+   cues:['Lower back pressed to floor the entire time','Move slowly and with control','Breathe out as you extend','Don\'t let lower back arch at all'],
+   alts:['Bird Dog','Hollow Body Hold','Plank'],
+
+   steps:['Lie on back, arms up, knees at 90°','Press lower back to floor','Extend opposite arm and leg slowly','Return and alternate sides']},
+  {id:'pallof-press',name:'Pallof Press',muscle:'core',equip:'cable',diff:1,
+   secondary:['obliques'],
+   desc:'Anti-rotation stability. Trains the exact stability needed for BJJ scrambles and skating balance.',
+   cues:['Stand perpendicular to cable — not facing it','Brace before you press','Resist cable pulling you toward the stack','Pause at full extension — this is the hard part'],
+   alts:['Band Anti-Rotation Hold','Landmine Rotation','Copenhagen Plank'],
+
+   steps:['Set cable at chest height','Stand perpendicular, grip with both hands','Brace core and press arms out','Hold 2 seconds, return — resist rotation']},
+  {id:'ab-wheel',name:'Ab Wheel Rollout',muscle:'core',equip:'bodyweight',diff:3,
+   secondary:['lats','shoulders'],
+   desc:'Extreme anti-extension demand. Builds the strongest anterior core of any bodyweight exercise.',
+   cues:['Start from knees — toes is advanced','Don\'t let hips drop or lower back arch','Think hollow body throughout','Go as far as you can with perfect form'],
+   alts:['Dead Bug','Stability Ball Rollout','TRX Fallout'],
+
+   steps:['Kneel with wheel on floor','Roll forward as far as possible','Maintain hollow body — no arch','Pull back using core and lats']},
+  {id:'side-plank',name:'Side Plank',muscle:'core',equip:'bodyweight',diff:1,
+   secondary:['obliques','hip abductors'],
+   desc:'Anti-lateral flexion stability. Hip stability critical for skating and BJJ.',
+   cues:['Stack feet or stagger for easier version','Drive hip up — don\'t sag','Progress to Copenhagen plank','Can add hip abduction for extra difficulty'],
+   alts:['Copenhagen Plank','Pallof Press','Cable Woodchop'],
+
+   steps:['Lie on side, forearm on floor','Stack feet or stagger for balance','Drive hip up to create straight body line','Hold for prescribed time, switch sides']},
+  {id:'hollow-body',name:'Hollow Body Hold',muscle:'core',equip:'bodyweight',diff:2,
+   secondary:[],
+   desc:'Full anterior core tension. Foundation of gymnastic strength. Excellent for BJJ guard work.',
+   cues:['Lower back pressed into floor — no gap','Arms by ears, legs low = harder, high = easier','Breathe — don\'t hold breath','Think of body as a banana shape'],
+   alts:['Plank','Dead Bug','L-Sit'],
+
+   steps:['Lie on back, arms overhead','Press lower back to floor — no gap','Raise arms, legs, and shoulders','Hold the banana shape — breathe']},
+  {id:'rowing-machine',name:'Rowing Machine',muscle:'cardio',equip:'machine',diff:2,
+   secondary:['back','legs','core'],
+   desc:'Full body cardio. 60% legs / 20% core / 20% arms. Best cardio for BJJ athletes.',
+   cues:['Drive: legs → lean back → arms','Recovery: arms → lean forward → legs','Don\'t round lower back on the drive','Damper setting 3–5 — it\'s about technique'],
+   alts:['Assault Bike','Ski Erg','Stationary Bike'],
+
+   steps:['Sit on rower, feet strapped in','Arms forward, lean into catch position','Drive legs first, lean back, then pull arms','Return: arms out, lean forward, slide back']},
+  {id:'incline-walk',name:'Incline Treadmill Walk',muscle:'cardio',equip:'machine',diff:1,
+   secondary:['calves','glutes'],
+   desc:'Zone 2 cardio without joint impact. Builds aerobic base. Low recovery cost.',
+   cues:['Don\'t hold the rails — defeats the purpose','Upright posture','Consistent speed for 20–40 minutes','Zone 2: you can hold a conversation'],
+   alts:['Cycling','Rowing Machine','Outdoor Walk'],
+
+   steps:['Set incline to 10–15%','Set speed to 3.0–3.5 mph','Walk tall — no holding the rails','Sustain for 20–40 minutes']},
+  {id:'kb-swing',name:'Kettlebell Swing',muscle:'cardio',equip:'kettlebell',diff:2,
+   secondary:['glutes','hamstrings','core'],
+   desc:'Hip hinge power + conditioning combined. One of the best athletic training movements.',
+   cues:['Hip hinge — not a squat','Bell drives from hip extension','Squeeze glutes hard at the top','Bell to chest height (Russian) or overhead (American)','Keep bell close on the back swing'],
+   alts:['Cable Pull-Through','Romanian Deadlift','Box Jump'],
+
+   steps:['Hinge at hips, grip kettlebell','Hike bell back between legs','Drive hips forward explosively','Bell floats to chest or overhead — repeat']},
+  {id:'box-jump',name:'Box Jump',muscle:'cardio',equip:'bodyweight',diff:2,
+   secondary:['legs','glutes','core'],
+   desc:'Explosive power builder. Fast-twitch activation. Direct carry-over to skating and BJJ.',
+   cues:['Arm swing for momentum','Land softly with bent knees','Step down — don\'t jump down','Start with low box and progress'],
+   alts:['Squat Jump','Broad Jump','Depth Jump'],
+
+   steps:['Stand in front of box','Swing arms and jump up explosively','Land softly, both feet on box','Step down carefully, reset, repeat']},
+  {id:'farmer-carry',name:'Farmer Carry',muscle:'full',equip:'dumbbell',diff:1,
+   secondary:['core','traps','forearms'],
+   desc:'Walk with heavy load. Builds grip, core, traps, and total body conditioning together.',
+   cues:['Stand tall — don\'t lean to either side','Small controlled steps','Grip as hard as possible','Walk for distance or time'],
+   alts:['Suitcase Carry','Trap Bar Carry','Plate Pinch'],
+
+   steps:['Pick up heavy dumbbells at sides','Stand tall, grip firm','Walk with short, controlled steps','Set down with control at end']},
+  {id:'band-pull-apart',name:'Band Pull-Apart',muscle:'back',equip:'band',diff:1,
+   secondary:['rear delts'],
+   desc:'Rear delt and rotator cuff health. Do these every session. Protects the shoulder joint.',
+   cues:['Arms straight, band at chest height','Pull apart to full extension','Squeeze shoulder blades at the end','Do every workout — no such thing as too many'],
+   alts:['Face Pull','Rear Delt Fly','Prone Y-T-W'],
+
+   steps:['Hold band at shoulder width, arms extended','Pull band apart until arms straight out','Squeeze shoulder blades together','Return with control, repeat']},
+  {id:'world-greatest-stretch',name:"World's Greatest Stretch",muscle:'full',equip:'bodyweight',diff:1,
+   secondary:['hip flexors','thoracic spine','hamstrings'],
+   desc:'Full body mobility in one move. Lunge + elbow to floor + thoracic rotation. Best warm-up drill.',
+   cues:['Step into deep lunge','Drop back knee to floor','Elbow to floor inside front foot','Rotate chest to ceiling — reach arm up','5 reps each side is a full warm-up'],
+   alts:['Hip 90/90 Stretch','Couch Stretch'],
+
+   steps:['Step into a deep lunge','Lower back knee toward floor','Place same-side elbow to floor inside foot','Rotate and reach opposite arm to ceiling']},
+  {id:'copenhagen-plank',name:'Copenhagen Plank',muscle:'core',equip:'bodyweight',diff:3,
+   secondary:['adductors','obliques'],
+   desc:'Side plank with top foot on bench. Adductor and core demand is extreme. Reduces groin injury risk.',
+   cues:['Top foot on bench, bottom leg free or on ground','Drive hip up — not just hold','Bent knee for easier version','Critical for BJJ groin health'],
+   alts:['Side Plank','Adductor Machine'],
+
+   steps:['Side plank position, top foot on bench','Drive hip up to full extension','Body forms straight line','Hold for time — switch sides']},
+  {id:'close-grip-bench',name:'Close-Grip Bench Press',muscle:'triceps',equip:'barbell',diff:2,
+   secondary:['chest','shoulders'],
+   desc:'Shoulder-width grip shifts load heavily to triceps while also building chest.',
+   cues:['Grip shoulder-width — not too narrow','Tuck elbows tight to body','Lower bar to lower chest','Full lockout at top'],
+   alts:['Tricep Dips','Skull Crusher','Cable Pushdown'],
+
+   steps:['Grip bar shoulder-width on flat bench','Lower to lower chest, elbows tucked','Press to full lockout','Repeat with strict form']},
+  {id:'flat-db-press',name:'Flat Dumbbell Press',muscle:'chest',equip:'dumbbell',diff:1,
+   secondary:['triceps','shoulders'],
+   desc:'Full ROM chest press. Each arm works independently. Great for hypertrophy.',
+   cues:['Dumbbells at chest level to start','Arc slightly inward at the top','Full stretch at bottom','Control the descent'],
+   alts:['Barbell Bench Press','Cable Chest Press','Push-Up'],
+
+   steps:['Lie flat, dumbbells at chest','Press up, arc slightly inward at top','Lower with full ROM stretch','Repeat with controlled tempo']},
+  {id:'chest-supported-row',name:'Chest-Supported Row',muscle:'back',equip:'dumbbell',diff:1,
+   secondary:['biceps','rear delts'],
+   desc:'Lies prone on incline bench to remove lower back from the equation entirely.',
+   cues:['Chest and stomach on pad','Row elbows past torso','Neutral or pronated grip both work','Squeeze shoulder blades together at top'],
+   alts:['T-Bar Row','Seated Cable Row','Barbell Row'],
+
+   steps:['Lie face-down on incline bench','Hold dumbbells hanging below','Row both elbows up and back','Squeeze shoulder blades, lower with control']},
+  {id:'cable-pullover',name:'Cable Straight-Arm Pullover',muscle:'back',equip:'cable',diff:1,
+   secondary:['core'],
+   desc:'Lat isolation without biceps. Arms straight, pull bar from overhead to thighs.',
+   cues:['Arms straight — slight elbow bend only','Hinge forward slightly','Pull bar to thighs in an arc','Squeeze lats hard at bottom'],
+   alts:['Dumbbell Pullover','Lat Pulldown'],
+
+   steps:['Face cable with high attachment','Arms extended, grip bar','Pull bar down to thighs in arc','Keep arms straight throughout']},
+  // ── CHEST (additional) ──
+  {id:'incline-db-press',name:'Incline Dumbbell Press',muscle:'chest',equip:'dumbbell',diff:1,
+   secondary:['shoulders','triceps'],
+   desc:'Incline angle targets upper chest with greater ROM than barbell. Each side works independently.',
+   cues:['Set bench to 30–45° — higher shifts load to shoulders','Dumbbells at chest level, palms forward','Arc slightly inward at top','Full stretch at the bottom every rep'],
+   alts:['Incline Barbell Press','Cable Chest Fly','Flat Dumbbell Press'],
+   steps:['Set bench to 30–45° incline','Lie back with dumbbells at upper chest','Press up to lockout with a slight inward arc','Lower with control for full stretch']},
+  {id:'pec-deck',name:'Pec Deck Machine',muscle:'chest',equip:'machine',diff:1,
+   secondary:[],
+   desc:'Machine fly with consistent resistance through the full arc. Safe isolation work, easy to load.',
+   cues:['Seat height: handles align with mid-chest','Keep slight elbow bend — don\'t lock out elbows','Squeeze chest hard at center peak contraction','Don\'t let plates touch on return — keep tension'],
+   alts:['Cable Chest Fly','Dumbbell Flye','Push-Up'],
+   steps:['Adjust seat so handles are at chest height','Grip handles, arms slightly bent','Bring arms together squeezing chest at peak','Return slowly — don\'t slam the stack']},
+  {id:'decline-bench',name:'Decline Barbell Press',muscle:'chest',equip:'barbell',diff:2,
+   secondary:['triceps','shoulders'],
+   desc:'Targets lower chest with less shoulder involvement than flat bench. Allows heavy loading.',
+   cues:['Feet secured in hooks, hips below shoulders','Bar path to lower chest — not nipple line','Elbows at 45–75° same as flat bench','Full lockout at the top every rep'],
+   alts:['Barbell Bench Press','Chest Dips','Cable Chest Fly'],
+   steps:['Secure feet in hooks, lie on decline bench','Unrack bar, lower to lower chest with control','Press to full lockout','Return to rack — don\'t bounce off chest']},
+  {id:'diamond-pushup',name:'Diamond Push-Up',muscle:'chest',equip:'bodyweight',diff:2,
+   secondary:['triceps','shoulders'],
+   desc:'Hands form a diamond shape under chest. Shifts emphasis to inner chest and triceps heavily.',
+   cues:['Index fingers and thumbs form a triangle/diamond','Elbows track naturally — don\'t force them in or out','Body stays rigid — no hip sag','Chest lowers to hands for full ROM'],
+   alts:['Push-Up','Close-Grip Bench Press','Tricep Dips'],
+   steps:['Place hands in diamond shape under sternum','Lower chest to hands with control','Press back to full arm extension','Keep body rigid from head to heels']},
+  // ── BACK (additional) ──
+  {id:'barbell-row',name:'Barbell Row',muscle:'back',equip:'barbell',diff:2,
+   secondary:['biceps','core','glutes'],
+   desc:'Horizontal pull with barbell. Builds back thickness. Overhand or underhand grip options.',
+   cues:['Hinge to 45° or near parallel — not upright','Bar stays close to legs throughout','Pull to lower sternum — not upper chest','Squeeze shoulder blades hard at the top'],
+   alts:['Dumbbell Row','Seated Cable Row','T-Bar Row'],
+   steps:['Stand over bar, hinge to ~45°','Grip just outside hip-width','Pull bar to lower sternum','Lower with control — no dropping']},
+  {id:'chinup',name:'Chin-Up',muscle:'back',equip:'bodyweight',diff:2,
+   secondary:['biceps','core'],
+   desc:'Underhand grip pull. Greater bicep involvement than pull-up. Slightly easier for most beginners.',
+   cues:['Supinated grip — palms facing you','Full dead hang at the bottom every rep','Drive elbows down and back to lats','Chest grazes or touches the bar at the top'],
+   alts:['Pull-Up','Lat Pulldown','Barbell Curl'],
+   steps:['Hang with underhand grip shoulder-width','Depress shoulder blades','Pull until chin clears bar','Lower to full dead hang with control']},
+  {id:'tbar-row',name:'T-Bar Row',muscle:'back',equip:'barbell',diff:2,
+   secondary:['biceps','core'],
+   desc:'Landmine or dedicated machine. Neutral grip hits middle back hard. High loading potential.',
+   cues:['Hinge to 45° — same as barbell row','Pull handles to lower chest — elbows drive back','Full stretch at the bottom','Neutral grip is easier on wrists and elbows'],
+   alts:['Barbell Row','Seated Cable Row','Chest-Supported Row'],
+   steps:['Straddle bar or use T-bar machine','Grip handles with neutral grip, hinge forward','Pull to lower chest — squeeze shoulder blades','Lower with full stretch']},
+  {id:'rack-pull',name:'Rack Pull',muscle:'back',equip:'barbell',diff:3,
+   secondary:['glutes','traps','forearms'],
+   desc:'Partial deadlift from a raised position. Overloads the lockout and builds upper back and traps.',
+   cues:['Set pins just below knee height','Same hip hinge pattern as deadlift','Drive hips through hard at lockout','Use straps — this is upper back work, not grip'],
+   alts:['Barbell Deadlift','Trap Bar Deadlift','Shrug'],
+   steps:['Set bar on rack pins at knee height','Set up with same stance as deadlift','Brace and pull to full lockout','Lower under control back to pins']},
+  // ── SHOULDERS (additional) ──
+  {id:'front-raise',name:'Front Raise',muscle:'shoulders',equip:'dumbbell',diff:1,
+   secondary:['upper chest'],
+   desc:'Anterior delt isolation. Plate or dumbbell version both work. Complements lateral raises.',
+   cues:['Slight bend in elbow throughout','Raise to shoulder/eye level — not higher','Avoid swinging the torso','Alternate arms or do both simultaneously'],
+   alts:['Barbell Overhead Press','Cable Front Raise','Lateral Raise'],
+   steps:['Hold dumbbells at thighs, palms down','Raise arms forward to shoulder height','Brief pause at top','Lower with control and repeat']},
+  {id:'cable-lateral-raise',name:'Cable Lateral Raise',muscle:'shoulders',equip:'cable',diff:1,
+   secondary:[],
+   desc:'Constant tension throughout full ROM. More effective at certain angles than dumbbells.',
+   cues:['Cable at lowest setting','Grip handle with the arm farther from the stack','Lead with elbow — not hand','Stop at shoulder height — no higher'],
+   alts:['Lateral Raise','Machine Lateral Raise','Band Lateral Raise'],
+   steps:['Stand beside low cable, grip with far hand','Raise arm out to shoulder height leading with elbow','Control the descent — cable keeps tension throughout','Repeat then switch sides']},
+  {id:'landmine-press',name:'Landmine Press',muscle:'shoulders',equip:'barbell',diff:2,
+   secondary:['triceps','upper chest','core'],
+   desc:'Angled press is easier on the shoulder joint than strict overhead. Great for athletes.',
+   cues:['Brace core hard throughout','Press at an angle — not straight up','Full lockout at top','Unilateral version builds anti-rotation core strength'],
+   alts:['Dumbbell Shoulder Press','Arnold Press','Barbell OHP'],
+   steps:['Place one end of bar in landmine anchor','Grip other end at shoulder height','Press to full extension at an angle','Return under control to shoulder']},
+  {id:'upright-row',name:'Upright Row',muscle:'shoulders',equip:'barbell',diff:1,
+   secondary:['traps','biceps'],
+   desc:'Vertical pull targets medial delts and traps. Use wide grip to reduce shoulder impingement risk.',
+   cues:['Wide grip reduces impingement risk','Pull elbows up and out — not straight up','Bar grazes the body throughout','Elbows just above wrists at the top'],
+   alts:['Lateral Raise','Cable Upright Row','Dumbbell Upright Row'],
+   steps:['Stand holding bar with wide overhand grip','Pull bar straight up close to body','Elbows drive up and flare outward','Lower with control back to thighs']},
+  {id:'machine-ohp',name:'Machine Shoulder Press',muscle:'shoulders',equip:'machine',diff:1,
+   secondary:['triceps'],
+   desc:'Fixed path overhead press. Good for beginners or finishing sets when fatigued.',
+   cues:['Adjust seat so handles start at ear level','Press directly overhead to lockout','Don\'t shrug at the top','Control the descent — don\'t slam the stack'],
+   alts:['Dumbbell Shoulder Press','Barbell OHP','Arnold Press'],
+   steps:['Adjust seat height — handles at ear level','Grip handles, brace core','Press overhead to full lockout','Lower under control and repeat']},
+  // ── BICEPS (additional) ──
+  {id:'preacher-curl',name:'Preacher Curl',muscle:'biceps',equip:'barbell',diff:1,
+   secondary:['forearms'],
+   desc:'Upper arm rests on angled pad — removes all cheating. Isolates the bicep, especially the lower portion.',
+   cues:['Upper arm stays on pad throughout','Full stretch at the bottom — don\'t cheat ROM','Squeeze hard at the top','EZ bar is easier on the wrists than straight bar'],
+   alts:['Concentration Curl','Spider Curl','Barbell Curl'],
+   steps:['Sit at preacher bench, upper arm on pad','Grip bar at shoulder width','Curl bar up to full contraction','Lower all the way for maximum stretch']},
+  {id:'spider-curl',name:'Spider Curl',muscle:'biceps',equip:'dumbbell',diff:1,
+   secondary:[],
+   desc:'Chest on incline bench facing down. Arms hang vertically — maximum short-head tension at peak.',
+   cues:['Chest on bench, arms hanging straight down','Curl strictly — no body movement at all','Squeeze hard at the top — full contraction','Lower all the way — arms fully extended'],
+   alts:['Preacher Curl','Concentration Curl','Incline Dumbbell Curl'],
+   steps:['Lie chest-down on incline bench','Hold dumbbells, arms hanging vertically','Curl both arms simultaneously','Lower with control to full extension']},
+  {id:'cable-curl',name:'Cable Curl',muscle:'biceps',equip:'cable',diff:1,
+   secondary:['forearms'],
+   desc:'Constant tension throughout the curl. Straight bar, EZ bar, or rope all work well.',
+   cues:['Elbows pinned to sides — don\'t let them drift forward','Full ROM — complete extension to full curl','Supinate wrist at the top for peak contraction','Don\'t lean back — keep torso vertical'],
+   alts:['Barbell Curl','Hammer Curl','Preacher Curl'],
+   steps:['Stand at low cable, grip straight bar','Elbows at sides, curl to chin','Squeeze biceps hard at the top','Lower with full control back to start']},
+  {id:'concentration-curl',name:'Concentration Curl',muscle:'biceps',equip:'dumbbell',diff:1,
+   secondary:[],
+   desc:'Seated isolation — elbow braced on inner thigh. Maximum bicep isolation with zero cheating.',
+   cues:['Elbow stays braced on inner thigh throughout','Full ROM — complete extension at bottom','Supinate at the top for peak contraction','Slow and controlled — this is detail work'],
+   alts:['Preacher Curl','Spider Curl','Cable Curl'],
+   steps:['Sit on bench, lean forward','Brace elbow on inner thigh','Curl dumbbell to shoulder level','Lower fully — no partial reps']},
+  {id:'ez-bar-curl',name:'EZ Bar Curl',muscle:'biceps',equip:'barbell',diff:1,
+   secondary:['forearms'],
+   desc:'Angled grip reduces wrist strain vs straight bar. Great for heavy bicep volume work.',
+   cues:['Grip the angled portion — not the straight center','Upper arms stay at sides throughout','Full ROM — full hang to full curl','2–3 second eccentric for hypertrophy'],
+   alts:['Barbell Curl','Cable Curl','Preacher Curl'],
+   steps:['Stand holding EZ bar with angled underhand grip','Elbows pinned to sides','Curl to chest level — squeeze','Lower with 2–3 second count']},
+  {id:'drag-curl',name:'Drag Curl',muscle:'biceps',equip:'barbell',diff:1,
+   secondary:[],
+   desc:'Elbows travel back as you curl — keeps elbows behind the body for unique long-head tension.',
+   cues:['Drag bar UP the body — don\'t arc it forward','Elbows travel backward as you lift','Bar stays in contact with body throughout','Focuses on the long head of the bicep'],
+   alts:['Barbell Curl','Incline Dumbbell Curl','Hammer Curl'],
+   steps:['Stand holding bar at thighs','Drag bar up the torso — elbows travel back','Bar reaches upper chest level','Lower with same controlled dragging motion']},
+  // ── TRICEPS (additional) ──
+  {id:'tricep-kickback',name:'Tricep Kickback',muscle:'triceps',equip:'dumbbell',diff:1,
+   secondary:[],
+   desc:'Hinge forward, upper arm parallel to floor. Full extension contracts all three tricep heads maximally.',
+   cues:['Upper arm stays parallel to the floor — this is key','Extend fully to lockout — don\'t short-circuit','Hinge at least 45° — the more the better','Go light and maintain strict form throughout'],
+   alts:['Tricep Rope Pushdown','Cable Overhead Extension','Overhead Tricep Extension'],
+   steps:['Hinge forward holding dumbbells','Upper arm parallel to floor, elbow bent 90°','Extend forearm back to full lockout','Return with control — upper arm stays still']},
+  {id:'cable-overhead-ext',name:'Cable Overhead Extension',muscle:'triceps',equip:'cable',diff:1,
+   secondary:[],
+   desc:'Cable version of overhead extension. Constant tension through the long head stretch.',
+   cues:['Set cable to low position','Face away from cable','Upper arms stay vertical by ears','Deep stretch at the bottom — feel the long head load'],
+   alts:['Overhead Tricep Extension','Skull Crusher','Tricep Rope Pushdown'],
+   steps:['Set cable low, attach rope','Turn away from cable, rope behind head','Press forearms overhead to full extension','Return slowly — feel the stretch at bottom']},
+  {id:'bar-pushdown',name:'Bar Pushdown',muscle:'triceps',equip:'cable',diff:1,
+   secondary:[],
+   desc:'Straight or EZ bar attached to high cable. Heavier loading than rope. Lateral head emphasis.',
+   cues:['Elbows pinned to sides — no flaring','Push down to full lockout every rep','Wrists stay straight throughout','Slight forward lean is acceptable'],
+   alts:['Tricep Rope Pushdown','Skull Crusher','Close-Grip Bench Press'],
+   steps:['Attach straight bar to high cable','Stand close, elbows pinned at sides','Push bar down to full lockout','Control return — elbows don\'t rise above 90°']},
+  {id:'dips-triceps',name:'Tricep Dips',muscle:'triceps',equip:'bodyweight',diff:2,
+   secondary:['chest','shoulders'],
+   desc:'Upright torso shifts load to triceps. Classic upper body mass and strength builder.',
+   cues:['Keep torso vertical for tricep focus (lean forward for chest)','Elbows stay tucked — don\'t flare wide','Lower until elbows reach 90°','Full lockout at the top each rep'],
+   alts:['Close-Grip Bench Press','Tricep Rope Pushdown','Skull Crusher'],
+   steps:['Grip parallel bars, torso upright','Lower body until elbows at 90°','Press back to full lockout','Add weight via dip belt to progress']},
+  {id:'tate-press',name:'Tate Press',muscle:'triceps',equip:'dumbbell',diff:2,
+   secondary:[],
+   desc:'Elbows flared wide, dumbbells lower to chest. Unique lateral head isolation. Good finisher.',
+   cues:['Elbows flare wide throughout — this is what makes it different','Lower dumbbell tips to chest — not a press upward','Keep upper arms stationary','Great finishing movement for tricep detail'],
+   alts:['Skull Crusher','Close-Grip Bench Press','Overhead Tricep Extension'],
+   steps:['Lie flat, hold dumbbells above chest with elbows wide','Lower dumbbell heads toward chest by bending elbows','Extend back to start — elbows stay flared wide','Control throughout — this is detail work']},
+  // ── LEGS (additional) ──
+  {id:'back-squat',name:'Back Squat',muscle:'legs',equip:'barbell',diff:3,
+   secondary:['glutes','core','back'],
+   desc:'The foundational lower body movement. High bar or low bar. Builds quad, glute, and posterior chain mass.',
+   cues:['Bar on traps (high bar) or rear delts (low bar)','Brace 360° — fill your belly with air','Knees track over toes throughout','Hip crease must break parallel — go deep'],
+   alts:['Goblet Squat','Zercher Squat','Front Squat'],
+   steps:['Unrack bar on upper back','Brace core, take a big breath','Squat below parallel — hip crease below knee','Drive through floor to stand']},
+  {id:'front-squat',name:'Front Squat',muscle:'legs',equip:'barbell',diff:3,
+   secondary:['core','upper back'],
+   desc:'Bar on front of shoulders forces upright torso. Maximum quad demand. Excellent for athletes.',
+   cues:['Elbows as high as possible — keep bar from rolling forward','Upright torso throughout — don\'t lean','Knees push out over toes','Deep squat preferred — upright torso allows it'],
+   alts:['Back Squat','Zercher Squat','Goblet Squat'],
+   steps:['Clean or unrack bar to front rack position','Elbows high, upper arms parallel to floor','Squat deep — torso stays upright','Stand driving through heels']},
+  {id:'hack-squat',name:'Hack Squat Machine',muscle:'legs',equip:'machine',diff:2,
+   secondary:['glutes'],
+   desc:'Angled sled spares the lower back. Great for high-volume quad work with heavy loading.',
+   cues:['Low + narrow foot = quad dominant','High + wide foot = glutes/hams','Full ROM — don\'t cut depth short','Knees track over toes throughout'],
+   alts:['Leg Press','Back Squat','Bulgarian Split Squat'],
+   steps:['Set foot position on platform','Lower sled until knees at 90°+','Drive through chosen foot position','Stop just short of knee lockout']},
+  {id:'leg-extension',name:'Leg Extension',muscle:'legs',equip:'machine',diff:1,
+   secondary:[],
+   desc:'Quad isolation machine. Excellent for building VMO (the teardrop near the knee).',
+   cues:['Sit upright, lower back against pad','Extend to full lockout — squeeze quads hard at top','3-second eccentric for hypertrophy','Avoid slamming the weight stack'],
+   alts:['Front Squat','Hack Squat','Goblet Squat'],
+   steps:['Adjust pad to sit on top of ankle','Sit upright, grip handles for stability','Extend legs to full lockout — squeeze quads','Lower with 3-second count']},
+  {id:'lying-leg-curl',name:'Lying Leg Curl',muscle:'legs',equip:'machine',diff:1,
+   secondary:['glutes'],
+   desc:'Hamstring isolation machine. Complements hip hinge work. The only true hamstring isolation.',
+   cues:['Hips stay on pad — don\'t raise them to cheat ROM','Curl all the way to full contraction','Slow eccentric — 2–3 second lower','Dorsiflex the foot for greater hamstring activation'],
+   alts:['Nordic Curl','Romanian Deadlift','Swiss Ball Leg Curl'],
+   steps:['Lie face-down, ankle under pad','Grip handles, hips flat on bench','Curl heels toward glutes fully','Lower with 2–3 second count']},
+  {id:'lunge',name:'Walking Lunge',muscle:'legs',equip:'dumbbell',diff:1,
+   secondary:['glutes','core','balance'],
+   desc:'Unilateral locomotion pattern. Builds single-leg strength, hip stability, and coordination.',
+   cues:['Step forward with appropriate stride length','Lower rear knee toward floor — don\'t slam it','Front knee tracks over front toes','Maintain upright torso throughout'],
+   alts:['Bulgarian Split Squat','Reverse Lunge','Step-Up'],
+   steps:['Stand holding dumbbells at sides','Step forward into lunge position','Lower rear knee toward floor','Drive through front foot to stand, alternate legs']},
+  // ── GLUTES (additional) ──
+  {id:'glute-bridge',name:'Glute Bridge',muscle:'glutes',equip:'bodyweight',diff:1,
+   secondary:['hamstrings','core'],
+   desc:'Floor version of the hip thrust. Bodyweight or add a barbell. Great intro to glute activation.',
+   cues:['Feet flat, knees bent to 90°','Drive through heels — not toes or mid-foot','Full hip extension at the top','Pause and squeeze at the top for 1–2 seconds'],
+   alts:['Hip Thrust','Cable Pull-Through','Single-Leg RDL'],
+   steps:['Lie on back, feet flat, knees bent 90°','Drive hips up through heel pressure','Extend hips fully — squeeze glutes hard','Lower with control, repeat']},
+  {id:'cable-pull-through',name:'Cable Pull-Through',muscle:'glutes',equip:'cable',diff:1,
+   secondary:['hamstrings','lower back'],
+   desc:'Hip hinge with cable resistance. Teaches glute-driven hinge. Low back friendly.',
+   cues:['Face away from the cable','Push hips back — this is a hinge, not a squat','Cable runs between legs throughout','Drive hips forward hard at full extension'],
+   alts:['Hip Thrust','Romanian Deadlift','Kettlebell Swing'],
+   steps:['Face away from low cable, grip rope between legs','Hinge hips back with soft knees','Drive hips forward explosively to stand','Squeeze glutes at full extension']},
+  {id:'single-leg-rdl',name:'Single-Leg RDL',muscle:'glutes',equip:'dumbbell',diff:2,
+   secondary:['hamstrings','core','balance'],
+   desc:'Unilateral hip hinge. Maximum glute and hamstring stretch. Excellent stability for BJJ and skating.',
+   cues:['Hinge on one leg — push the hip back','Rear leg extends behind as a counterbalance','Keep hips square — don\'t rotate them open','Feel the deep glute and hamstring stretch at bottom'],
+   alts:['Romanian Deadlift','Hip Thrust','Nordic Curl'],
+   steps:['Stand on one leg holding dumbbell(s)','Hinge forward — rear leg lifts behind you','Lower dumbbell toward floor — hips stay square','Drive through standing heel to return to upright']},
+  {id:'donkey-kick',name:'Donkey Kick',muscle:'glutes',equip:'bodyweight',diff:1,
+   secondary:['core'],
+   desc:'Quadruped glute isolation. Cable or bodyweight. Excellent activation and finishing movement.',
+   cues:['Core braced — don\'t let lower back arch to compensate','Drive heel toward ceiling — not out to the side','Full hip extension at the top','Slow and controlled — feel the glute contract'],
+   alts:['Hip Thrust','Glute Bridge','Cable Kickback'],
+   steps:['Start on hands and knees — spine neutral','Brace core throughout','Drive one heel toward ceiling, knee stays bent','Lower with control, repeat — then switch sides']},
+  {id:'sumo-deadlift',name:'Sumo Deadlift',muscle:'glutes',equip:'barbell',diff:3,
+   secondary:['legs','back','core'],
+   desc:'Wide stance, toes out. Less lower back demand than conventional. Hip and glute dominant pull.',
+   cues:['Feet wider than shoulder-width, toes out 30–45°','Push knees out hard over toes at setup','Bar stays vertical throughout the pull','Hips sit closer to the bar than in conventional'],
+   alts:['Conventional Deadlift','Romanian Deadlift','Hip Thrust'],
+   steps:['Stand with wide stance over bar','Hinge down, grip bar inside the legs','Push knees out and pull bar to lockout','Lower with same controlled path']},
+  {id:'reverse-hyper',name:'Reverse Hyperextension',muscle:'glutes',equip:'machine',diff:2,
+   secondary:['hamstrings','lower back'],
+   desc:'Posterior chain accessory that also decompresses the spine. Builds glute endurance.',
+   cues:['Lie face-down, hips at the edge of pad','Swing legs up using glute and hamstring drive','Controlled arc — not pure momentum','Add ankle weight or strap in for loading'],
+   alts:['Hip Thrust','Romanian Deadlift','Good Morning'],
+   steps:['Lie face-down on reverse hyper machine','Grip handles, secure feet in strap if available','Swing legs up to horizontal via glute drive','Lower with control — controlled pendulum arc']},
+  {id:'abduction-machine',name:'Hip Abduction Machine',muscle:'glutes',equip:'machine',diff:1,
+   secondary:['hip abductors'],
+   desc:'Seated hip abduction targets glute medius. Critical for hip stability in skating, BJJ, and running.',
+   cues:['Sit upright, back against pad','Push knees out against pads with control','Full ROM — go as wide as comfortable','Slow eccentric — squeeze at end range'],
+   alts:['Side-Lying Abduction','Cable Hip Abduction','Copenhagen Plank'],
+   steps:['Sit in machine, legs inside pads','Push knees apart against resistance','Full abduction — pause at end range','Return slowly with control']},
+  // ── CORE (additional) ──
+  {id:'hanging-leg-raise',name:'Hanging Leg Raise',muscle:'core',equip:'bodyweight',diff:2,
+   secondary:['hip flexors','lats'],
+   desc:'Hip flexion from a dead hang. Full lower ab and hip flexor demand. Also trains grip.',
+   cues:['Avoid swinging — control every rep','Posterior pelvic tilt at the top — curl the lower back','Straight legs = harder, knees bent = easier','Start from a dead stop each rep — no momentum'],
+   alts:['Ab Wheel Rollout','Bicycle Crunch','Plank'],
+   steps:['Hang from pull-up bar with straight arms','Brace core, raise legs to horizontal or higher','Tilt pelvis back at top for ab contraction','Lower with control — don\'t swing']},
+  {id:'cable-woodchop',name:'Cable Woodchop',muscle:'core',equip:'cable',diff:1,
+   secondary:['obliques','shoulders'],
+   desc:'Rotational core movement. Trains obliques in both shortening and lengthening. Sport-specific.',
+   cues:['Rotation comes from the core — arms just hold the handle','Hips can rotate slightly at end range','Both high-to-low and low-to-high versions are valuable','Brace before initiating the movement'],
+   alts:['Pallof Press','Russian Twist','Landmine Rotation'],
+   steps:['Set cable high (for high-to-low variation)','Stand perpendicular, grip handle with both hands','Rotate and pull cable across body in a diagonal arc','Return with control — resist the pull back']},
+  {id:'bicycle-crunch',name:'Bicycle Crunch',muscle:'core',equip:'bodyweight',diff:1,
+   secondary:['obliques','hip flexors'],
+   desc:'One of the highest EMG-activated ab exercises. Rotational crunch with alternating legs.',
+   cues:['Hands behind head — don\'t pull the neck forward','Rotate shoulder to opposite knee — not just elbow','Fully extend the opposite leg low to floor','Move slowly and under control — quality over speed'],
+   alts:['Dead Bug','Side Plank','Pallof Press'],
+   steps:['Lie on back, hands behind head','Lift shoulder blades off floor','Rotate right shoulder toward left knee as right leg extends','Alternate sides in a controlled pedaling motion']},
+  {id:'russian-twist',name:'Russian Twist',muscle:'core',equip:'bodyweight',diff:1,
+   secondary:['obliques','hip flexors'],
+   desc:'Seated rotation targets obliques. Add a plate or medicine ball for increased demand.',
+   cues:['Lean back 45° to increase difficulty','Lift feet off floor for added core challenge','Rotate shoulders — don\'t just move your arms','Touch hands or weight to floor on each side'],
+   alts:['Bicycle Crunch','Cable Woodchop','Pallof Press'],
+   steps:['Sit on floor, knees bent, lean back 45°','Hold hands together or grip a weight','Rotate torso left until hands touch floor','Rotate right — alternate sides without rushing']},
+  // ── CARDIO (additional) ──
+  {id:'assault-bike',name:'Assault Bike',muscle:'cardio',equip:'machine',diff:2,
+   secondary:['legs','shoulders','core'],
+   desc:'Full-body air bike. Resistance increases with effort. The most brutal conditioning tool in the gym.',
+   cues:['Push AND pull the handles — don\'t just pedal legs','Intervals are most effective for conditioning','10s sprint / 50s easy is a classic protocol','Breathe rhythmically — don\'t hold your breath'],
+   alts:['Rowing Machine','Jump Rope','Sled Push'],
+   steps:['Sit on bike, grip handles at shoulder height','Begin pedaling and simultaneously push/pull handles','Maintain smooth push-pull coordination','Vary pace for intervals or sustain for aerobic work']},
+  {id:'jump-rope',name:'Jump Rope',muscle:'cardio',equip:'bodyweight',diff:1,
+   secondary:['calves','shoulders','core'],
+   desc:'Classic conditioning tool. Builds footwork, coordination, and aerobic base. Great for boxing and BJJ.',
+   cues:['Wrists rotate the rope — not the shoulders','Land on the balls of the feet — not flat-footed','Keep jumps small — just clear the rope','Work up to double-unders for advanced conditioning'],
+   alts:['Rowing Machine','Assault Bike','Stairmaster'],
+   steps:['Hold handles at hip level, rope behind feet','Swing rope overhead and jump over it','Land softly on balls of feet — knees slightly bent','Maintain a consistent rhythm throughout']},
+  {id:'burpee',name:'Burpee',muscle:'cardio',equip:'bodyweight',diff:2,
+   secondary:['legs','chest','core','shoulders'],
+   desc:'Total body metabolic exercise combining squat, push-up, and jump. No equipment needed.',
+   cues:['Pace yourself — don\'t sprint and collapse','Add a full push-up for more muscle demand','Land softly on the jump portion','Consistent breathing throughout the set'],
+   alts:['Box Jump','Assault Bike','Jump Rope'],
+   steps:['Stand upright','Drop hands to floor and jump feet back to plank','Perform a push-up (optional)','Jump feet to hands, then explode up with jump']},
+  {id:'sled-push',name:'Sled Push',muscle:'cardio',equip:'machine',diff:2,
+   secondary:['legs','core','shoulders'],
+   desc:'Loaded sled push. High-intensity conditioning with low eccentric stress and fast recovery.',
+   cues:['Lean forward aggressively — your body is the engine','Short powerful leg drive steps','Drive through the balls of the feet','No eccentric load means great for high-frequency work'],
+   alts:['Assault Bike','Farmer Carry','Battle Ropes'],
+   steps:['Load sled with appropriate weight','Lean forward and grip the posts','Drive forward with powerful leg drive','Push for prescribed distance, reset and repeat']},
+  {id:'stairmaster',name:'StairMaster',muscle:'cardio',equip:'machine',diff:1,
+   secondary:['glutes','calves','legs'],
+   desc:'Stepmill for sustained aerobic work. Higher glute and calf activation than flat treadmill walking.',
+   cues:['Don\'t lean on the handrails — defeats the purpose','Full step — don\'t shuffle toe to toe','Keep a pace you can sustain for 20+ minutes','Zone 2 target: conversational pace'],
+   alts:['Incline Treadmill Walk','Rowing Machine','Cycling'],
+   steps:['Set appropriate speed on the machine','Step fully — don\'t just shuffle toes','Maintain upright posture, hands off rails','Sustain for prescribed duration']},
+  {id:'battle-ropes',name:'Battle Ropes',muscle:'cardio',equip:'machine',diff:2,
+   secondary:['shoulders','core','arms'],
+   desc:'Alternating or simultaneous rope waves. High-intensity upper body conditioning.',
+   cues:['Athletic stance — slight squat throughout','Drive from hips and core, not just arms','Various patterns: waves, slams, circles','30s on / 30s off is a great interval protocol'],
+   alts:['Assault Bike','Jump Rope','Kettlebell Swing'],
+   steps:['Stand in athletic stance holding rope ends','Create alternating waves by driving arms up and down','Engage hips and core throughout','Maintain wave height and speed for full duration']},
+  // ── CALVES ──
+  {id:'standing-calf-raise',name:'Standing Calf Raise',muscle:'calves',equip:'machine',diff:1,
+   secondary:[],
+   desc:'Full gastrocnemius stretch and contraction. Knees straight targets the gastroc specifically.',
+   cues:['Full stretch at the bottom — heel all the way down','Full contraction at the top — rise as high as possible','Slow eccentric — 2–3 second lower','No bouncing — pause 1 second at stretch and at contraction'],
+   alts:['Seated Calf Raise','Single-Leg Calf Raise','Donkey Calf Raise'],
+   steps:['Stand on calf raise machine, shoulders under pads','Lower heels as far as possible for full stretch','Rise up as high as possible on toes','Lower with 2–3 second count — pause at bottom']},
+  {id:'seated-calf-raise',name:'Seated Calf Raise',muscle:'calves',equip:'machine',diff:1,
+   secondary:[],
+   desc:'Knee bent targets the soleus specifically. Often undertrained — soleus thickness pushes gastroc outward.',
+   cues:['Knees bent at 90° — this isolates the soleus','Full ROM — same as standing version','Soleus responds well to higher rep ranges (15–25)','Progress slower than gastroc — use lighter weight'],
+   alts:['Standing Calf Raise','Single-Leg Calf Raise','Tibialis Raise'],
+   steps:['Sit at machine, pad rests on lower thighs near knee','Lower heels for full stretch','Rise onto balls of feet for full contraction','Lower slowly — pause at full stretch']},
+  {id:'donkey-calf-raise',name:'Donkey Calf Raise',muscle:'calves',equip:'bodyweight',diff:1,
+   secondary:[],
+   desc:'Hip flexed 90° creates maximum gastrocnemius stretch. Arnold Schwarzenegger\'s favorite calf exercise.',
+   cues:['Hinge forward to 90° — this is essential for the stretch','Full heel drop for maximum stretch','Rise as high as possible on toes','Partner can sit on hips to add resistance'],
+   alts:['Standing Calf Raise','Single-Leg Calf Raise','Leg Press Calf Raise'],
+   steps:['Stand behind a bench, hinge forward 90°','Hands on bench for support','Lower heels as far as possible','Rise on toes to full contraction and pause']},
+  {id:'single-leg-calf-raise',name:'Single-Leg Calf Raise',muscle:'calves',equip:'bodyweight',diff:1,
+   secondary:['balance'],
+   desc:'Bodyweight on one leg doubles the load vs bilateral. Also trains ankle stability and balance.',
+   cues:['Hold something for balance only — don\'t lean on it','Full ROM — maximum stretch and maximum height','Slow eccentric especially — 3-second lower','Progress with a dumbbell in the free hand'],
+   alts:['Standing Calf Raise','Seated Calf Raise','Tibialis Raise'],
+   steps:['Stand on one foot on edge of a step','Lower heel past step for full stretch','Rise onto ball of foot — maximum height','Lower with 3-second count — repeat, then switch']},
+  {id:'leg-press-calf',name:'Leg Press Calf Raise',muscle:'calves',equip:'machine',diff:1,
+   secondary:[],
+   desc:'Calf raises performed with legs extended on the leg press. Allows very heavy loading safely.',
+   cues:['Only toes and balls of feet on the lower edge of platform','Full ROM — complete plantarflexion and dorsiflexion','Lock the sled safety catches before repositioning feet','Legs stay nearly straight — don\'t bend knees'],
+   alts:['Standing Calf Raise','Seated Calf Raise','Donkey Calf Raise'],
+   steps:['Load leg press, press sled up and lock safety catches','Slide feet to bottom of platform — balls of feet only','Push through toes to plantarflex fully','Lower heels past platform for full ROM']},
+  // ── FOREARMS ──
+  {id:'wrist-curl',name:'Wrist Curl',muscle:'forearms',equip:'barbell',diff:1,
+   secondary:[],
+   desc:'Seated forearm flexion. Targets wrist flexors. Essential for grip strength and BJJ.',
+   cues:['Forearms rest on thighs with wrists off knees','Allow full wrist extension at the bottom','Curl to full wrist flexion at the top','Go light — forearm muscles are small and injury-prone'],
+   alts:['Reverse Wrist Curl','Zottman Curl','Dead Hang'],
+   steps:['Sit with forearms on thighs, wrists hanging off knees','Hold bar with underhand grip','Lower by extending wrists fully','Curl bar up by flexing wrists — full ROM']},
+  {id:'reverse-wrist-curl',name:'Reverse Wrist Curl',muscle:'forearms',equip:'barbell',diff:1,
+   secondary:[],
+   desc:'Wrist extension targets the extensor group (top of forearm). Balances flexors and prevents elbow issues.',
+   cues:['Overhand grip — opposite of wrist curl','Targets the dorsal forearm and extensors','Pair with wrist curl for balanced forearm development','Use very light weight — extensors are much weaker than flexors'],
+   alts:['Wrist Curl','Reverse Curl','Dead Hang'],
+   steps:['Sit with forearms on thighs, wrists off knees','Hold bar with overhand grip','Lower by flexing wrists (knuckles toward floor)','Raise by extending wrists (knuckles toward ceiling)']},
+  {id:'dead-hang',name:'Dead Hang',muscle:'forearms',equip:'bodyweight',diff:1,
+   secondary:['lats','shoulders','core'],
+   desc:'Hang from a bar for time. Builds crushing grip, decompresses the spine, and strengthens the shoulder girdle.',
+   cues:['True dead hang — let shoulders fully relax','Breathe steadily — don\'t hold your breath','Progress duration week to week','Active hang (scapula depressed) is a separate harder progression'],
+   alts:['Farmer Carry','Plate Pinch','Wrist Curl'],
+   steps:['Jump or step to grip a pull-up bar','Let body hang fully — shoulders passive','Breathe steadily and maintain grip','Hold for target duration — release safely']},
+  {id:'plate-pinch',name:'Plate Pinch',muscle:'forearms',equip:'dumbbell',diff:2,
+   secondary:[],
+   desc:'Pinch two weight plates together. Develops the pinch grip used in BJJ, climbing, and everyday tasks.',
+   cues:['Smooth side of plates faces outward','Thumb on one side, four fingers on the other','Hold at hip level or walk for a farmer carry variation','Progress by adding a third plate between'],
+   alts:['Dead Hang','Farmer Carry','Wrist Curl'],
+   steps:['Stack two plates smooth side facing out','Pinch with thumb and four fingers','Lift and hold at hip level','Hold for time, set down, switch hands']},
+  {id:'reverse-curl',name:'Reverse Curl',muscle:'forearms',equip:'barbell',diff:1,
+   secondary:['biceps','brachialis'],
+   desc:'Overhand curl grip. Hits brachioradialis hard. Builds arm thickness and balances bicep development.',
+   cues:['Overhand grip — fully pronated throughout','Upper arms stay at sides','Wrists stay neutral — don\'t let them bend','Superset with barbell curl for complete arm work'],
+   alts:['Hammer Curl','Wrist Curl','EZ Bar Curl'],
+   steps:['Stand holding bar with overhand grip','Elbows at sides, curl bar to chest level','Squeeze brachioradialis at top','Lower with 2-second count']},
+  {id:'zottman-curl',name:'Zottman Curl',muscle:'forearms',equip:'dumbbell',diff:1,
+   secondary:['biceps','brachialis'],
+   desc:'Curl up supinated, pronate at top, lower overhand. Hits both flexors and extensors in a single rep.',
+   cues:['Curl up with supinated (underhand) grip','Rotate wrists to overhand (pronated) at the top','Lower SLOWLY with overhand grip — this is the key','Controlled rotation — don\'t rush the wrist turn'],
+   alts:['Barbell Curl','Reverse Curl','Hammer Curl'],
+   steps:['Hold dumbbells underhand at sides','Curl up — palms facing up throughout','At top, rotate to overhand grip','Lower slowly with overhand grip — feel brachioradialis work']},
+  // ── FULL BODY (additional) ──
+  {id:'turkish-getup',name:'Turkish Get-Up',muscle:'full',equip:'kettlebell',diff:3,
+   secondary:['shoulders','core','hips','balance'],
+   desc:'Single arm overhead movement from floor to standing. Builds total body stability, strength, and coordination.',
+   cues:['Keep eyes on the bell at all times','Pressed arm stays vertical and locked out throughout','Move through each position deliberately — no rushing','One of the best shoulder health and stability exercises'],
+   alts:['Farmer Carry','Barbell OHP','Windmill'],
+   steps:['Lie on back, kettlebell pressed overhead in one hand','Roll to elbow then to hand, extend hips off floor','Sweep rear leg behind into lunge position','Stand upright — reverse the entire sequence to return']},
+  {id:'power-clean',name:'Power Clean',muscle:'full',equip:'barbell',diff:3,
+   secondary:['legs','back','shoulders','core'],
+   desc:'Olympic lift variation. Maximum hip extension power. Develops explosive athleticism for sport.',
+   cues:['First pull: maintain position from floor to knee','Second pull: explosive hip extension at mid-thigh','Catch in quarter squat — elbows snap through fast','Bar stays close to the body the entire lift'],
+   alts:['Kettlebell Swing','Box Jump','Trap Bar Deadlift'],
+   steps:['Set up like a deadlift, bar over mid-foot','Pull bar to mid-thigh maintaining position','Explosive hip extension — shrug and pull elbows through','Catch in front rack position in a quarter squat']},
+  {id:'thruster',name:'Thruster',muscle:'full',equip:'barbell',diff:3,
+   secondary:['legs','shoulders','core','triceps'],
+   desc:'Front squat into overhead press in one fluid movement. Builds total body power and conditioning.',
+   cues:['Bar stays in front rack throughout the squat','Use leg drive out of the hole to push the bar overhead','Full lockout overhead at the top every rep','Tight core — no lower back overextension at lockout'],
+   alts:['Barbell OHP','Front Squat','Kettlebell Swing'],
+   steps:['Hold bar in front rack position','Squat to full depth — keep elbows high','Drive up explosively and press bar overhead','Full lockout at top, lower back to rack for next rep']},
+  {id:'man-maker',name:'Man-Maker',muscle:'full',equip:'dumbbell',diff:3,
+   secondary:['chest','back','shoulders','legs','core'],
+   desc:'Push-up + rows + stand-up + press complex. One of the most complete conditioning exercises.',
+   cues:['Maintain plank during the push-up — no hip sag','One arm row on each side before standing','Clean dumbbells to shoulders efficiently','Full press overhead to complete one rep'],
+   alts:['Burpee','Thruster','Power Clean'],
+   steps:['Start in plank position holding dumbbells','Perform one push-up','Row each dumbbell to hip one at a time','Clean to shoulders, squat, then press overhead']},
+  {id:'suitcase-carry',name:'Suitcase Carry',muscle:'full',equip:'dumbbell',diff:1,
+   secondary:['core','obliques','traps','forearms'],
+   desc:'Farmer carry with one side loaded. Extreme anti-lateral flexion demand. Builds obliques and QL.',
+   cues:['Do NOT lean toward the loaded side — resist it','Stand perfectly tall throughout','Core fights the lateral pull the entire time','Switch sides each set for balanced development'],
+   alts:['Farmer Carry','Pallof Press','Side Plank'],
+   steps:['Hold a heavy dumbbell in one hand at side','Stand tall — actively resist any lean','Walk with controlled steps for prescribed distance','Switch sides and repeat']},
+  {id:'trap-bar-deadlift',name:'Trap Bar Deadlift',muscle:'full',equip:'barbell',diff:2,
+   secondary:['glutes','legs','back','core'],
+   desc:'Hex bar deadlift. Neutral grip, bar alongside body. More quad dominant, easier to learn than conventional.',
+   cues:['Stand in the center of the bar','Push the floor away — it\'s a squat/deadlift hybrid','More upright torso than conventional is natural','Neutral grip eliminates wrist and forearm strain'],
+   alts:['Conventional Deadlift','Back Squat','Hack Squat'],
+   steps:['Stand in center of trap bar, feet hip-width','Hinge down and grip handles','Brace core, chest up, drive through floor','Lock hips and knees out simultaneously at top']},
+  {id:'sandbag-carry',name:'Sandbag Carry',muscle:'full',equip:'machine',diff:2,
+   secondary:['core','traps','forearms','legs'],
+   desc:'Awkward object carry. Builds functional strength, grip, and the ability to control unstable loads.',
+   cues:['Hug the bag tight — the awkwardness is the training stimulus','Brace core extremely hard throughout','Short controlled steps','Various carry positions: shoulder, bear hug, Zercher'],
+   alts:['Farmer Carry','Suitcase Carry','Yoke Carry'],
+   steps:['Load sandbag to appropriate weight','Lift from floor in bear hug or shoulder carry','Walk with controlled steps for distance','Set down with control using good mechanics']},
+  {id:'clean-and-press',name:'Clean and Press',muscle:'full',equip:'barbell',diff:3,
+   secondary:['legs','back','shoulders','core'],
+   desc:'Pull bar from floor to shoulder, then press overhead. Builds total body power and strength.',
+   cues:['Execute a clean first — good rack position before pressing','Use leg drive for the clean pull','Press only after stable front rack position','Two distinct movements — give each full focus'],
+   alts:['Power Clean','Barbell OHP','Thruster'],
+   steps:['Deadlift bar to hang position at hips','Explosively clean bar to front rack','Stabilize in rack position — then press overhead','Lower to rack, return to floor under control']},
+  {id:'kettlebell-clean',name:'Kettlebell Clean',muscle:'full',equip:'kettlebell',diff:2,
+   secondary:['back','legs','core','forearms'],
+   desc:'Hip hinge to rack position. Teaches the clean pattern with less complexity than barbell.',
+   cues:['Hike the bell back between the legs','Hip snap — drive hips through at the top','Bell rotates around wrist into rack — don\'t bang forearm','Rack position: bell rests on forearm at chest level'],
+   alts:['Kettlebell Swing','Power Clean','Barbell Row'],
+   steps:['Stand over kettlebell, hike it back between legs','Drive hips forward explosively','Guide bell up and rotate into rack position','Bell rests on forearm — control and stabilize']},
+];
+
+// Build lookup map
+const EX_MAP = {};
+EX.forEach(e => EX_MAP[e.id] = e);
+
+// Also index by name for alternative links
+const EX_NAME_MAP = {};
+EX.forEach(e => EX_NAME_MAP[e.name.toLowerCase()] = e);
+
+
+// ═══════════════════════════════════════════════════════════
+// WEEKLY SCHEDULE
+// ═══════════════════════════════════════════════════════════
+const SCHEDULE = {
+  monday:   {title:'Push Day',tag:'push',color:'#ff6b35',exercises:['incline-bench','flat-db-press','cable-fly','db-shoulder-press','tricep-pushdown','overhead-tricep-ext'],note:'Post-workout: 10 min shoulder mobility'},
+  tuesday:  {title:'Cardio + Core',tag:'cardio',color:'#e8ff47',exercises:['incline-walk','dead-bug','pallof-press','ab-wheel','side-plank','hollow-body'],note:'Zone 2 cardio — keep it conversational'},
+  wednesday:{title:'Pull Day',tag:'pull',color:'#4da6ff',exercises:['pullup','cable-row-single','seated-cable-row','face-pull','incline-db-curl','hammer-curl'],note:'Focus on lat stretch and shoulder blade retraction'},
+  thursday: {title:'Legs + Posterior',tag:'legs',color:'#44ffaa',exercises:['zercher-squat','rdl','bulgarian-split-squat','leg-press','nordic-curl','tibialis-raise'],note:'Post-workout: hip flexor and quad stretch'},
+  friday:   {title:'Upper Hybrid',tag:'push',color:'#ff6b35',exercises:['flat-db-press','chest-supported-row','arnold-press','cable-pullover','rear-delt-fly','close-grip-bench'],note:'Volume day — controlled tempo'},
+  saturday: {title:'Cardio + Mobility',tag:'mobility',color:'#44ffaa',exercises:['rowing-machine','kb-swing','world-greatest-stretch','band-pull-apart'],note:'Steady state cardio + full mobility flow'},
+  sunday:   {title:'Rest Day',tag:null,color:'#444',exercises:[],note:'Active recovery only. Light walk, stretch.'}
+};
+const DAY_NAMES = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+const DAY_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+// ═══════════════════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════════════════
+function showPage(id, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(id==='schedule') renderSchedule();
+  if(id==='exercises') filterExercises();
+  if(id==='macros') renderMacros();
+  if(id==='profile') renderProfile();
+}
+
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+
+// ═══════════════════════════════════════════════════════════
+// SCHEDULE PAGE
+// ═══════════════════════════════════════════════════════════
+function renderSchedule(){
+  const now = new Date();
+  const todayDow = now.getDay();
+  const todayKey = DAY_NAMES[todayDow];
+
+  document.getElementById('sched-date').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+
+  // Week strip
+  const ws = document.getElementById('week-strip');
+  ws.innerHTML = DAY_NAMES.map((d,i)=>{
+    const date = new Date(now); date.setDate(now.getDate() - todayDow + i);
+    const ds = date.toDateString();
+    const done = S.logs.some(l=>new Date(l.date).toDateString()===ds);
+    const isToday = i === todayDow;
+    const sched = SCHEDULE[d];
+    return `<div class="week-dot${done?' done':''}${isToday?' today':''}">
+      <div class="week-dot-day">${DAY_SHORT[i]}</div>
+      <div class="week-dot-icon">${done?'✓':sched&&sched.tag?'●':'—'}</div>
+    </div>`;
+  }).join('');
+
+  // Streak
+  let streak=0;
+  const sorted=[...S.logs].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  let chk=new Date(); chk.setHours(0,0,0,0);
+  for(let l of sorted){const d=new Date(l.date);d.setHours(0,0,0,0);const diff=Math.round((chk-d)/86400000);if(diff<=1){streak++;chk=d;}else break;}
+  document.getElementById('sched-streak').textContent=streak;
+
+  // Day cards
+  const container = document.getElementById('schedule-days');
+  container.innerHTML = DAY_NAMES.map((dayKey,i)=>{
+    const sched = SCHEDULE[dayKey];
+    const isToday = i === todayDow;
+    const date = new Date(now); date.setDate(now.getDate() - todayDow + i);
+    const ds = date.toDateString();
+    const done = S.logs.some(l=>new Date(l.date).toDateString()===ds);
+
+    const exPills = sched.exercises.map(exId=>{
+      const ex = EX_MAP[exId];
+      if(!ex) return '';
+      return `<span class="day-ex-pill" onclick="openExModal('${exId}');event.stopPropagation();">${ex.name}</span>`;
+    }).join('');
+
+    return `<div class="day-card${isToday?' today':''}">
+      <div class="day-header">
+        <div>
+          <div class="day-name bebas" style="color:${isToday?'var(--accent)':'var(--text)'}">
+            ${DAY_SHORT[i]} — ${sched.title}
+          </div>
+          <div class="day-label">${date.toLocaleDateString('en-US',{month:'short',day:'numeric'})} ${isToday?'<span style="color:var(--accent);font-weight:700;">• Today</span>':''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          ${sched.tag?`<span class="tag tag-${sched.tag}">${sched.tag}</span>`:''}
+          ${done?'<span class="tag" style="background:rgba(68,255,170,.15);color:var(--green);">✓ Done</span>':''}
+        </div>
+      </div>
+      ${sched.exercises.length?`<div class="day-exercises">${exPills}</div>`:''}
+      ${sched.note?`<div style="padding:0 16px 12px;font-size:11px;color:var(--muted2);">💡 ${sched.note}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXERCISE LIBRARY
+// ═══════════════════════════════════════════════════════════
+let activeEquip='all', activeMuscle='all';
+
+function setEquip(btn,val){
+  document.querySelectorAll('[data-equip]').forEach(b=>{b.classList.remove('active');b.classList.add('btn-ghost');});
+  btn.classList.add('active'); btn.classList.remove('btn-ghost');
+  activeEquip=val; filterExercises();
+}
+function setMuscle(btn,val){
+  document.querySelectorAll('[data-muscle]').forEach(b=>{b.classList.remove('active');b.classList.add('btn-ghost');});
+  btn.classList.add('active'); btn.classList.remove('btn-ghost');
+  activeMuscle=val; filterExercises();
+}
+function filterExercises(){
+  const searchEl=document.getElementById('ex-search');
+  const q=searchEl?searchEl.value.toLowerCase():'';
+  let res=EX.filter(ex=>{
+    const mE=activeEquip==='all'||ex.equip===activeEquip;
+    const mM=activeMuscle==='all'||ex.muscle===activeMuscle||(ex.secondary&&ex.secondary.includes(activeMuscle));
+    const mS=!q||ex.name.toLowerCase().includes(q)||(ex.desc&&ex.desc.toLowerCase().includes(q))||ex.muscle.includes(q)||ex.equip.includes(q);
+    return mE&&mM&&mS;
+  }).sort((a,b)=>a.name.localeCompare(b.name));
+  document.getElementById('ex-count-bar').textContent=res.length+' exercise'+(res.length!==1?'s':'')+' found';
+  const DIFF_LABELS=['','Beginner','Intermediate','Advanced'];
+  const DIFF_COLORS=['','#44ffaa','#ffe66d','#ff6b35'];
+  document.getElementById('ex-list').innerHTML = res.map(ex=>`
+    <div class="card" style="cursor:pointer;padding:14px;" onclick="openExModal('${ex.id}')">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;font-size:14px;margin-bottom:3px;">${ex.name}</div>
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:6px;">${ex.muscle.charAt(0).toUpperCase()+ex.muscle.slice(1)} · ${ex.equip}</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <span class="tag tag-${ex.muscle}">${ex.muscle}</span>
+            <span class="tag" style="background:rgba(255,255,255,.06);color:var(--muted2);">${ex.equip}</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+          <div class="diff-dots">${Array.from({length:3},(_,i)=>`<div class="diff-dot${i<ex.diff?' on':''}"></div>`).join('')}</div>
+          <div style="font-size:10px;color:${DIFF_COLORS[ex.diff]};font-weight:600;">${DIFF_LABELS[ex.diff]}</div>
+          <div style="font-size:12px;color:var(--blue);">View →</div>
+        </div>
+      </div>
+    </div>
+  `).join('') || '<div style="padding:40px;text-align:center;color:var(--muted2);">No exercises found</div>';
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXERCISE MODAL
+// ═══════════════════════════════════════════════════════════
+let exModalHistory = [];
+
+
+
+function openExModal(exId){
+  const ex = EX_MAP[exId];
+  if(!ex) {
+    // Try name lookup
+    const found = EX_NAME_MAP[exId.toLowerCase()];
+    if(found) return openExModal(found.id);
+    return;
+  }
+  exModalHistory.push(exId);
+  document.getElementById('ex-modal').classList.add('open');
+  renderExModal(ex);
+  document.getElementById('ex-modal').scrollTop = 0;
+}
+
+function closeExModal(){
+  exModalHistory.pop();
+  if(exModalHistory.length > 0){
+    renderExModal(EX_MAP[exModalHistory[exModalHistory.length-1]]);
+    document.getElementById('ex-modal').scrollTop = 0;
+  } else {
+    document.getElementById('ex-modal').classList.remove('open');
+  }
+}
+
+function renderExModal(ex){
+  const DIFF_LABELS = ['','Beginner','Intermediate','Advanced'];
+  const DIFF_COLORS = ['','#44ffaa','#ffe66d','#ff6b35'];
+  const MUSCLE_COLORS = {
+    chest:'#ff6464',back:'#4da6ff',shoulders:'#ffdc50',biceps:'#b57bff',
+    triceps:'#ff6b35',legs:'#44ffaa',glutes:'#ff8c5a',core:'#4da6ff',
+    calves:'#81ecec',forearms:'#fab1a0',cardio:'#e8ff47',full:'#b57bff'
+  };
+  const EQUIP_LABELS = {
+    barbell:'Barbell',dumbbell:'Dumbbell',cable:'Cable Machine',machine:'Machine',
+    bodyweight:'Bodyweight',band:'Resistance Band',kettlebell:'Kettlebell'
+  };
+
+  document.getElementById('ex-modal-title').textContent = ex.name;
+  document.getElementById('ex-modal-sub').textContent = ex.muscle.charAt(0).toUpperCase()+ex.muscle.slice(1)+' · '+(EQUIP_LABELS[ex.equip]||ex.equip);
+  document.getElementById('ex-modal-tag').innerHTML = `<span class="tag tag-${ex.muscle}">${ex.muscle}</span>`;
+
+  const mc = MUSCLE_COLORS[ex.muscle] || '#ffffff';
+  const dc = DIFF_COLORS[ex.diff];
+  const dl = DIFF_LABELS[ex.diff];
+  const eq = EQUIP_LABELS[ex.equip] || ex.equip;
+  const ml = ex.muscle.charAt(0).toUpperCase()+ex.muscle.slice(1);
+
+  // ── Hero banner ─────────────────────────────────────────────
+  const heroHtml = `
+    <div style="background:linear-gradient(135deg,${mc}20 0%,${mc}06 50%,transparent 100%),var(--bg3);border:1px solid ${mc}35;border-radius:16px;padding:18px 20px;margin-bottom:22px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+        <div>
+          <span class="tag tag-${ex.muscle}" style="margin-bottom:6px;display:inline-block;">${ml}</span>
+          <div style="font-size:12px;color:var(--muted2);margin-top:2px;">${eq}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="diff-dots" style="justify-content:flex-end;margin-bottom:4px;">${Array.from({length:3},(_,i)=>`<div class="diff-dot${i<ex.diff?' on':''}"></div>`).join('')}</div>
+          <span style="font-size:11px;color:${dc};font-weight:700;">${dl}</span>
+        </div>
+      </div>
+      ${ex.secondary && ex.secondary.length ? `
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:5px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);">
+        <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-right:2px;">Also works</span>
+        ${ex.secondary.map(s=>`<span class="tag" style="background:rgba(255,255,255,.07);color:var(--muted2);font-size:10px;">${s}</span>`).join('')}
+      </div>` : ''}
+    </div>`;
+
+  // ── About ───────────────────────────────────────────────────
+  const aboutHtml = `
+    <div class="ex-section">
+      <div class="ex-section-label">About</div>
+      <p style="font-size:14px;color:#ccc;line-height:1.75;margin:0;">${ex.desc}</p>
+    </div>`;
+
+  // ── Steps (if present) ──────────────────────────────────────
+  const steps = ex.steps || [];
+  const stepsHtml = steps.length ? `
+    <div class="ex-section">
+      <div class="ex-section-label">How To</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        ${steps.map((s,i)=>`
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div class="ex-step-num" style="background:${mc}20;color:${mc};border:1px solid ${mc}40;">${i+1}</div>
+            <div style="font-size:13px;color:#bbb;line-height:1.6;padding-top:4px;flex:1;">${s}</div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  // ── Coaching cues ───────────────────────────────────────────
+  const cues = ex.cues || [];
+  const cuesHtml = cues.length ? `
+    <div class="ex-section">
+      <div class="ex-section-label">Coaching Cues</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${cues.map((c,i)=>`
+          <div class="ex-cue-row">
+            <div class="ex-cue-num">${i+1}</div>
+            <div style="font-size:13px;color:#ccc;line-height:1.55;flex:1;">${c}</div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  // ── Alternatives ────────────────────────────────────────────
+  const altsHtml = ex.alts && ex.alts.length ? `
+    <div class="ex-section">
+      <div class="ex-section-label">Alternatives</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${ex.alts.map(a=>{
+          const altId = a.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+          const found = EX_NAME_MAP[a.toLowerCase()] || EX_MAP[altId];
+          return found
+            ? `<span class="alt-link" onclick="openExModal('${found.id}')">${a}</span>`
+            : `<span style="font-size:12px;background:var(--bg4);color:var(--muted2);padding:5px 11px;border-radius:6px;">${a}</span>`;
+        }).join('')}
+      </div>
+    </div>` : '';
+
+  document.getElementById('ex-modal-body').innerHTML =
+    heroHtml + aboutHtml + stepsHtml + cuesHtml + altsHtml +
+    '<div style="height:32px;"></div>';
+}
+
+// ═══════════════════════════════════════════════════════════
+// MACROS
+// ═══════════════════════════════════════════════════════════
+function calcMacros(){
+  const p = S.profile;
+  if(!p.weight||!p.heightFt||!p.age) return null;
+  const heightCm = ((p.heightFt*12)+p.heightIn)*2.54;
+  const weightKg = p.weight*0.453592;
+  // Mifflin-St Jeor
+  let bmr;
+  if(p.sex==='male') bmr = 10*weightKg + 6.25*heightCm - 5*p.age + 5;
+  else bmr = 10*weightKg + 6.25*heightCm - 5*p.age - 161;
+  const tdee = Math.round(bmr * (p.activity||1.55));
+  let calGoal, proteinGoal, carbGoal, fatGoal;
+  const lbsWeight = p.weight;
+  switch(p.goal){
+    case 'bulk':    calGoal=tdee+300; proteinGoal=Math.round(lbsWeight*1.0); fatGoal=Math.round(calGoal*0.25/9); carbGoal=Math.round((calGoal-proteinGoal*4-fatGoal*9)/4); break;
+    case 'cut':     calGoal=tdee-400; proteinGoal=Math.round(lbsWeight*1.1); fatGoal=Math.round(calGoal*0.25/9); carbGoal=Math.round((calGoal-proteinGoal*4-fatGoal*9)/4); break;
+    case 'recomp':  calGoal=tdee;     proteinGoal=Math.round(lbsWeight*1.0); fatGoal=Math.round(calGoal*0.3/9);  carbGoal=Math.round((calGoal-proteinGoal*4-fatGoal*9)/4); break;
+    case 'athlete': calGoal=tdee+200; proteinGoal=Math.round(lbsWeight*1.0); fatGoal=Math.round(calGoal*0.25/9); carbGoal=Math.round((calGoal-proteinGoal*4-fatGoal*9)/4); break;
+    default:        calGoal=tdee;     proteinGoal=Math.round(lbsWeight*0.8); fatGoal=Math.round(calGoal*0.3/9);  carbGoal=Math.round((calGoal-proteinGoal*4-fatGoal*9)/4); break;
+  }
+  return {calGoal,proteinGoal,carbGoal,fatGoal,tdee};
+}
+
+function getTodayFoods(){
+  const today = new Date().toDateString();
+  return S.foods[today] || [];
+}
+
+function renderMacros(){
+  const now = new Date();
+  document.getElementById('macro-date').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const foods = getTodayFoods();
+  const totals = foods.reduce((a,f)=>({cal:a.cal+(f.cal||0),p:a.p+(f.p||0),c:a.c+(f.c||0),f:a.f+(f.f||0)}),{cal:0,p:0,c:0,f:0});
+  const macros = calcMacros();
+
+  const calGoal = macros ? macros.calGoal : 2500;
+  const pGoal = macros ? macros.proteinGoal : 180;
+  const cGoal = macros ? macros.carbGoal : 280;
+  const fGoal = macros ? macros.fatGoal : 70;
+
+  // Ring
+  const pct = Math.min(totals.cal/calGoal, 1);
+  const circ = 364;
+  document.getElementById('cal-ring').style.strokeDashoffset = circ - (pct * circ);
+  document.getElementById('cal-consumed').textContent = totals.cal;
+  document.getElementById('cal-goal-display').textContent = calGoal;
+
+  // Bars
+  const setBar = (id, valId, val, goal, unit) => {
+    const pct = Math.min(val/goal*100, 100);
+    document.getElementById(id).style.width = pct+'%';
+    document.getElementById(valId).textContent = `${val}/${goal}${unit}`;
+  };
+  setBar('bar-p','val-p',totals.p,pGoal,'g');
+  setBar('bar-c','val-c',totals.c,cGoal,'g');
+  setBar('bar-f','val-f',totals.f,fGoal,'g');
+
+  // Food list
+  const fl = document.getElementById('food-list');
+  if(!foods.length){
+    fl.innerHTML = '<div style="padding:16px 0;color:var(--muted2);font-size:13px;text-align:center;">No food logged today. Tap + Add Food.</div>';
+  } else {
+    fl.innerHTML = foods.map((f,i)=>`
+      <div class="food-item">
+        <div>
+          <div class="food-name">${f.name}</div>
+          <div class="food-macros">P: ${f.p}g · C: ${f.c}g · F: ${f.f}g</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="food-cal">${f.cal}</div>
+          <button class="btn btn-danger btn-xs" onclick="deleteFood(${i})">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Targets display
+  const td = document.getElementById('macro-targets-display');
+  if(macros){
+    const goalLabels={'bulk':'Build Muscle','cut':'Lose Fat','recomp':'Recomp','athlete':'Athletic Performance','maintain':'Maintain'};
+    td.innerHTML = `
+      <div style="font-size:12px;color:var(--muted2);margin-bottom:8px;">Goal: <span style="color:var(--accent);">${goalLabels[S.profile.goal]||S.profile.goal}</span> · TDEE: ${macros.tdee} cal/day</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="card-xs"><div style="font-family:'Bebas Neue';font-size:22px;color:var(--accent);">${macros.calGoal}</div><div style="font-size:10px;color:var(--muted2);">CALORIES</div></div>
+        <div class="card-xs"><div style="font-family:'Bebas Neue';font-size:22px;color:#4da6ff;">${macros.proteinGoal}g</div><div style="font-size:10px;color:var(--muted2);">PROTEIN</div></div>
+        <div class="card-xs"><div style="font-family:'Bebas Neue';font-size:22px;color:#e8ff47;">${macros.carbGoal}g</div><div style="font-size:10px;color:var(--muted2);">CARBS</div></div>
+        <div class="card-xs"><div style="font-family:'Bebas Neue';font-size:22px;color:#ff6b35;">${macros.fatGoal}g</div><div style="font-size:10px;color:var(--muted2);">FAT</div></div>
+      </div>`;
+  } else {
+    td.innerHTML = '<div style="font-size:12px;color:var(--muted2);">Complete your profile to get personalized macro targets.</div>';
+  }
+}
+
+function addFood(){
+  const name=document.getElementById('food-name').value.trim();
+  if(!name)return;
+  const today=new Date().toDateString();
+  if(!S.foods[today])S.foods[today]=[];
+  S.foods[today].push({
+    name,
+    cal:parseInt(document.getElementById('food-cals').value)||0,
+    p:parseInt(document.getElementById('food-p').value)||0,
+    c:parseInt(document.getElementById('food-c').value)||0,
+    f:parseInt(document.getElementById('food-f').value)||0,
+  });
+  save();
+  closeModal('food-modal');
+  ['food-name','food-cals','food-p','food-c','food-f'].forEach(id=>document.getElementById(id).value='');
+  renderMacros();
+}
+
+function deleteFood(idx){
+  const today=new Date().toDateString();
+  S.foods[today].splice(idx,1);
+  save();
+  renderMacros();
+}
+
+// ═══════════════════════════════════════════════════════════
+// PROFILE
+// ═══════════════════════════════════════════════════════════
+function renderProfile(){
+  const p = S.profile;
+  const initials = (p.name||'QL').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('prof-avatar').textContent = initials;
+  document.getElementById('prof-name').textContent = p.name || 'Quinn Lamar';
+
+  let sub = '';
+  if(p.heightFt && p.weight) sub = `${p.heightFt}'${p.heightIn||0}" · ${p.weight} lbs`;
+  if(p.age) sub += ` · Age ${p.age}`;
+  document.getElementById('prof-sub').textContent = sub || 'Set up your profile';
+
+  // Fill inputs
+  if(p.name) document.getElementById('prof-name-input').value = p.name;
+  if(p.age) document.getElementById('prof-age').value = p.age;
+  if(p.sex) document.getElementById('prof-sex').value = p.sex;
+  if(p.heightFt) document.getElementById('prof-height-ft').value = p.heightFt;
+  if(p.heightIn!=null) document.getElementById('prof-height-in').value = p.heightIn;
+  if(p.weight) document.getElementById('prof-weight').value = p.weight;
+  if(p.goal) document.getElementById('prof-goal').value = p.goal;
+  if(p.activity) document.getElementById('prof-activity').value = p.activity;
+
+  // Stats
+  const now = new Date();
+  const week = S.logs.filter(l=>(now-new Date(l.date))/86400000<7).length;
+  document.getElementById('p-total').textContent = S.logs.length;
+  document.getElementById('p-week').textContent = week;
+  let streak=0;
+  const sorted=[...S.logs].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  let chk=new Date();chk.setHours(0,0,0,0);
+  for(let l of sorted){const d=new Date(l.date);d.setHours(0,0,0,0);const diff=Math.round((chk-d)/86400000);if(diff<=1){streak++;chk=d;}else break;}
+  document.getElementById('p-streak').textContent = streak;
+
+  // Weight log
+  const wl = document.getElementById('weight-log-list');
+  const recent = [...S.weights].reverse().slice(0,5);
+  wl.innerHTML = recent.length ? recent.map(w=>`
+    <div class="flex-between" style="padding:8px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-size:13px;">${w.note||'Morning weight'}</div>
+        <div class="small muted">${new Date(w.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+      </div>
+      <div style="font-family:'Bebas Neue';font-size:22px;color:var(--accent);">${w.weight} lbs</div>
+    </div>
+  `).join('') : '<div class="small muted">No weight entries yet.</div>';
+
+  // Session log
+  const sl = document.getElementById('session-log-list');
+  const recentSess = [...S.logs].reverse().slice(0,5);
+  sl.innerHTML = recentSess.length ? recentSess.map(l=>`
+    <div class="card-xs" style="margin-bottom:6px;">
+      <div class="flex-between">
+        <div>
+          <div style="font-weight:600;font-size:13px;">${l.type}</div>
+          <div class="small muted">${new Date(l.date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · ${l.duration}min</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:13px;">${'★'.repeat(l.rating||3)}${'☆'.repeat(5-(l.rating||3))}</div>
+          <button class="btn btn-danger btn-xs" onclick="deleteSession(${l.id})">✕</button>
+        </div>
+      </div>
+      ${l.notes?`<div class="small muted mt-4">${l.notes}</div>`:''}
+    </div>
+  `).join('') : '<div class="small muted">No sessions logged yet.</div>';
+
+  // Journal
+  const jl = document.getElementById('journal-list');
+  const recentJ = [...S.journals].reverse().slice(0,3);
+  jl.innerHTML = recentJ.length ? recentJ.map(j=>`
+    <div class="card-xs" style="margin-bottom:6px;">
+      <div class="small muted">${new Date(j.date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div>
+      <div style="font-size:13px;margin-top:4px;color:#bbb;">${j.text}</div>
+    </div>
+  `).join('') : '';
+}
+
+function saveProfile(){
+  S.profile = {
+    name: document.getElementById('prof-name-input').value || 'Quinn Lamar',
+    age: parseInt(document.getElementById('prof-age').value)||22,
+    sex: document.getElementById('prof-sex').value,
+    heightFt: parseInt(document.getElementById('prof-height-ft').value)||5,
+    heightIn: parseInt(document.getElementById('prof-height-in').value)||10,
+    weight: parseFloat(document.getElementById('prof-weight').value)||175,
+    goal: document.getElementById('prof-goal').value,
+    activity: parseFloat(document.getElementById('prof-activity').value)||1.55,
+  };
+  save();
+  renderProfile();
+  renderMacros();
+  const btn = event.target;
+  btn.textContent = '✓ Saved!';
+  setTimeout(()=>btn.textContent='Save & Recalculate Macros',2000);
+}
+
+let curRating = 3;
+function setRating(n){
+  curRating=n;
+  document.querySelectorAll('#rating-row button').forEach((b,i)=>{
+    b.classList.toggle('btn-accent',i<n);
+    b.classList.toggle('btn-ghost',i>=n);
+  });
+}
+
+function saveSession(){
+  S.logs.push({
+    id:Date.now(),
+    date:new Date().toISOString(),
+    type:document.getElementById('sess-type').value,
+    duration:parseInt(document.getElementById('sess-dur').value)||60,
+    rating:curRating,
+    notes:document.getElementById('sess-notes').value
+  });
+  save();
+  closeModal('session-modal');
+  document.getElementById('sess-dur').value='';
+  document.getElementById('sess-notes').value='';
+  renderProfile();
+  renderSchedule();
+}
+
+function deleteSession(id){
+  S.logs=S.logs.filter(l=>l.id!==id);
+  save();
+  renderProfile();
+}
+
+function saveWeight(){
+  const val=parseFloat(document.getElementById('weight-input').value);
+  if(!val)return;
+  S.weights.push({date:new Date().toISOString(),weight:val,note:document.getElementById('weight-note').value||'Morning weight'});
+  save();
+  closeModal('weight-modal');
+  document.getElementById('weight-input').value='';
+  document.getElementById('weight-note').value='';
+  renderProfile();
+}
+
+function saveJournal(){
+  const text=document.getElementById('journal-input').value.trim();
+  if(!text)return;
+  S.journals.push({date:new Date().toISOString(),text});
+  save();
+  document.getElementById('journal-input').value='';
+  renderProfile();
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.modal-overlay').forEach(o=>{
+    o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});
+  });
+  renderSchedule();
+  filterExercises();
+});
+</script>
+</body>
+</html>
